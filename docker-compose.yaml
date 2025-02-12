@@ -1,0 +1,103 @@
+services:
+  nginx:
+    container_name: od_nginx
+    image: nginx:latest
+    ports:
+      - target: 80
+        published: 8000
+        protocol: tcp
+    volumes:
+      - ${PROJECT_PATH}:/var/www/${PROJECT_NAME}
+      - ${PROJECT_PATH}/storage:/var/www/${PROJECT_NAME}/storage
+      - ${PROJECT_PATH}/docker/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+      - db
+    networks:
+      - od-app
+
+  app:
+    container_name: od_app
+    user: 1000:1000
+    build:
+      dockerfile: ./docker/php/Dockerfile
+    volumes:
+      - ${PROJECT_PATH}:/var/www/${PROJECT_NAME}
+      - ${PROJECT_PATH}/storage:/var/www/${PROJECT_NAME}/storage
+    depends_on:
+      - db
+    networks:
+      - od-app
+
+  db:
+    container_name: od_db
+    image: mysql:8
+    restart: always
+    volumes:
+      - od-db:/var/lib/mysql
+    ports:
+      - target: 3306
+#        published: 3309 // контейнеры в пределах нетворка (od-app) юзат container-port. host-port нам пока что не нужен
+    environment:
+      MYSQL_DATABASE: oddiiydb
+      MYSQL_USER: gumbum
+      MYSQL_PASSWORD: gumpass
+      MYSQL_ROOT_PASSWORD: oddiiyroot
+    networks:
+      - od-app
+
+
+#  elasticsearch:
+#    image: elasticsearch:8.11.1
+#    container_name: od_es
+#    ports:
+#      - "9200:9200"
+#    environment:
+#      - node.name=unumKebab
+#      - cluster.name=unumKebabCluster
+#      - http.host=0.0.0.0
+#      - transport.host=127.0.0.1
+#      - ELASTIC_PASSWORD=ukespass
+#      - discovery.type=single-node
+#      - xpack.security.enabled=false # To remove SSL complexity
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    volumes:
+#      - "./es-data:/usr/share/elasticsearch/data"
+#    healthcheck:
+#      test:
+#        [
+#          "CMD-SHELL",
+#          "curl -s --user elastic:ukespass -X GET http://localhost:9200/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'"
+#        ]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 24
+#    networks:
+#      - od-app
+#
+#  kibana:
+#    depends_on:
+#      elasticsearch:
+#        condition: service_healthy
+#    image: kibana:8.11.1
+#    container_name: od_kibana
+#    ports:
+#      - "5601:5601"
+#    environment:
+#      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+#      ELASTICSEARCH_URL: http://elasticsearch:9200
+#      ELASTICSEARCH_USERNAME: ukesuser
+#      ELASTICSEARCH_PASSWORD: ukespass
+#    networks:
+#      - od-app
+
+volumes:
+  od-db:
+
+networks:
+  od-app:
+    driver: bridge
