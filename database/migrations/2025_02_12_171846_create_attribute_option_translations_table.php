@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_translation', function (Blueprint $table) {
+        Schema::create('attribute_option_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained();
+            $table->foreignId('attribute_option_id')->constrained();
             $table->string('locale')->index();
-            $table->string('name');
-            $table->text('description');
+            $table->string('value');
 
-            $table->unique(['product_id', 'locale']);
+            $table->unique(['attribute_option_id', 'locale']);
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_translation');
+        Schema::dropIfExists('attribute_option_translations');
     }
 };

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attribute_translation', function (Blueprint $table) {
+        Schema::create('tag_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('attribute_id')->constrained();
+            $table->foreignId('tag_id')->constrained();
             $table->string('locale')->index();
             $table->string('name');
 
-            $table->unique(['attribute_id', 'locale']);
+            $table->unique(['tag_id', 'locale']);
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attribute_translation');
+        Schema::dropIfExists('tag_translations');
     }
 };
