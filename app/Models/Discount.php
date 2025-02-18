@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enum\CouponType;
+use App\Enum\SaleType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -22,7 +22,7 @@ class Discount extends Model
     protected function casts(): array
     {
         return [
-            'type' => CouponType::class,
+            'type' => SaleType::class,
             'starts_at' => 'date',
             'expires_at' => 'date',
         ];

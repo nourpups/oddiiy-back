@@ -14,14 +14,12 @@ RUN apk add --no-cache \
         bcmath \
         gd \
         zip \
-        intl
+        intl \
+        exif
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --from=composer:2.7.7 /usr/bin/composer /usr/bin/composer
-
-# нужен чтобы работал tinker
-# https://stackoverflow.com/questions/46467774/laravel-writing-to-config-psysh-is-not-allowed#comment130111227_73635736
 
 WORKDIR /var/www/oddiiy-back
 
@@ -31,5 +29,20 @@ RUN composer install --prefer-dist --ignore-platform-reqs --no-progress --no-scr
 
 COPY ./ ./
 
+# нужен чтобы работали добавленные алиасы (https://serverfault.com/a/1109046)
+# закоменчен по причине 47 строка
+#ENV ENV="/etc/profile"
+
+# создаем executable чтобы сократить сэкономить время, пример:
+# docker exec -it <app_cntnr_name> php artisan ... --> docker exec -it <app_cntnr_name> a ...
+# (создание простых alias не панацея, бикос оф https://superuser.com/a/1209426)
+RUN echo '#! /bin/sh' >> /usr/local/bin/a \
+    && echo 'php artisan "$@"' >> /usr/local/bin/a \
+    && chmod 755 /usr/local/bin/a
+
+# нужен чтобы работал tinker
+# https://stackoverflow.com/questions/46467774/laravel-writing-to-config-psysh-is-not-allowed#comment130111227_73635736
 RUN adduser -D -u 1000 -s /bin/bash xuy www-data \
     && chown -R xuy:xuy ./
+#    && echo 'alias a="php artisan"' >> /etc/profile.d/custom_aliases.sh
+# добавления алиаса, не нужен из-за executable'а сверху, не удаляю на будущее может понадобиться

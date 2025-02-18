@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('code');
             $table->string('value');
             $table->integer('type');
-            $table->integer('max_uses')->default(100);
+            $table->integer('max_uses')->default(1);
             $table->timestamps();
         });
     }

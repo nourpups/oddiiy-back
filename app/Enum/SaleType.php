@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-enum CouponType: int
+enum SaleType: int
 {
     case FIXED = 1;
     case PERCENTAGE = 2;

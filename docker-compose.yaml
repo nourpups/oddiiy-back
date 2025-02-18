@@ -37,7 +37,7 @@ services:
       - od-db:/var/lib/mysql
     ports:
       - target: 3306
-#        published: 3309 // контейнеры в пределах нетворка (od-app) юзат container-port. host-port нам пока что не нужен
+        published: 3309
     environment:
       MYSQL_DATABASE: oddiiydb
       MYSQL_USER: gumbum

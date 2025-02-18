@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('discounts', function (Blueprint $table) {
             $table->id();
             $table->morphs('discountable');
-            $table->string('value');
+            $table->integer('value');
             $table->integer('type');
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('expires_at')->nullable();

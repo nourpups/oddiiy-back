@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained();
             $table->string('locale')->index();
+            $table->string('slug')->index();
             $table->string('name');
 
             $table->unique(['category_id', 'locale']);
