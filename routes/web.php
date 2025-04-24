@@ -12,5 +12,7 @@ Route::get('/', function () {
 //        ->first();
 //    $t = \App\Models\Discount::all();
 //    dd($categories->toArray(), $t->toArray());
-
+//    $sku = \App\Models\Sku::query()->with(['images', 'product'])->first();
+//
+//   return new \App\Http\Resources\SkuResource($sku);
 });

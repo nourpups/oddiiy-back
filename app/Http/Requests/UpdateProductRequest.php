@@ -2,7 +2,16 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\SaleType;
+use App\Rules\RemovedOr;
+use App\Rules\UpdateSkuImage;
+use Astrotomic\Translatable\Validation\RuleFactory;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -11,7 +20,7 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +31,30 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            ...RuleFactory::make([
+                'translations.%name%' => ['required', 'string'],
+                'translations.%description%' => ['required', 'string'],
+            ]),
+            'tag_id' => ['sometimes', new RemovedOr('integer')],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'discount' => ['sometimes', new RemovedOr('array')],
+            'discount.value' => ['present_if:discount,array', 'integer'],
+            'discount.type' => ['present_if:discount,array', Rule::enum(SaleType::class)],
+            'discount.starts_at' => ['sometimes', new RemovedOr('after:today')],
+            'discount.expires_at' => ['sometimes', new RemovedOr(['date', 'after:discount.starts_at'])],
+            'skus.*.id' => ['sometimes', 'numeric', 'exists:skus,id'],
+            'skus.*.price' => ['required', 'numeric', 'min:1000'],
+            'skus.*.attributes' => ['sometimes', new RemovedOr('array')],
+            'skus.*.attributes.*' => ['present_if:skus.*.attributes,array', 'integer'],
+            'skus.*.images' => ['required', 'array'],
+            'skus.*.images.*' => ['required', new UpdateSkuImage]
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'skus.*.price' => __('messages.min.price')
         ];
     }
 }

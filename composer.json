@@ -9,7 +9,9 @@
         "php": "^8.2",
         "astrotomic/laravel-translatable": "^11.15",
         "laravel/framework": "^11.31",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "propaganistas/laravel-phone": "^5.3",
         "spatie/laravel-medialibrary": "^11.12"
     },
     "require-dev": {

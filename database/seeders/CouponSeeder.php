@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enum\FirstOrderCoupon;
 use App\Enum\SaleType;
 use App\Models\Coupon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -15,14 +16,16 @@ class CouponSeeder extends Seeder
     public function run(): void
     {
         Coupon::factory()->create([
-            'code' => 'OZIGAXOS',
-            'value' => 15,
-            'type' => SaleType::PERCENTAGE
+            'id' => FirstOrderCoupon::ID,
+            'code' => 'POCHIN',
+            'value' => 10,
+            'type' => SaleType::PERCENTAGE,
+            'max_uses' => FirstOrderCoupon::MAX_USES
         ]);
 
         Coupon::factory()->create([
-            'code' => 'POCHIN',
-            'value' => 10,
+            'code' => "O'ZIGAXOS",
+            'value' => 15,
             'type' => SaleType::PERCENTAGE
         ]);
     }

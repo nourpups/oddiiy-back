@@ -11,7 +11,9 @@ use App\Models\Product;
 use App\Models\Sku;
 use Faker\Factory;
 use Faker\Generator;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Mmo\Faker\FakeimgProvider;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileCannotBeAdded;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
@@ -31,22 +33,43 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        Category::all()->map(function (Category $category) {
-            Product::factory()
-                ->count(mt_rand(2, 8))
-                ->for($category)
-                ->create()
-                ->map(function (Product $product) {
-                    // создаём переводы
-                    $this->createProductTranslations($product);
+        DB::transaction(function () {
+            Category::all()->each(function (Category $category) {
+                Product::factory()
+                    ->count(mt_rand(1, 2))
+                    ->for($category)
+                    ->create()
+                    ->each(function (Product $product) {
+                        // создаём переводы
+                        $this->createProductTranslations($product);
+                        // создаём sku
+                        $this->createProductVariants($product);
 
-                    // создаём sku
-                    $this->createProductVariants($product);
+                        dump('Usage: ' . memory_get_usage() / 1024 / 1024 . ' MBs');
+                        gc_collect_cycles(); // убирает проблему с memory limit exceeded
+                    });
+            });
+            dump('Peak usage: ' . memory_get_peak_usage() / 1024 / 1024 . ' MBs');
 
-                });
         });
+    }
 
-        $this->createDiscountForCategoryWithMostProducts();
+    private function createProductTranslations($product): void
+    {
+        $fakers = [
+            Locale::RU->value => Factory::create('ru_RU'),
+            Locale::UZ->value => fake(),
+        ];
+
+        /** @var \Faker\Generator $faker */
+        foreach ($fakers as $locale => $faker) {
+            $name = $faker->realText(mt_rand(11, 25));
+            $product->translateOrNew($locale)->name = $name;
+            $product->translateOrNew($locale)->slug = str($name)->slug(language: $locale);
+            $product->translateOrNew($locale)->description = $faker->realText(120);
+        }
+
+        $product->save();
     }
 
     /**
@@ -76,7 +99,7 @@ class ProductSeeder extends Seeder
                             $product->name,
                             $attributeOption->value
                         );
-                        $this->addImagesToProductSku($createdSku, $textOnImage, 2);
+                        $this->addImageToProductSku($createdSku, $textOnImage, 2);
 
                         // прикрепляем варианты
                         $createdSku->attributeOptions()->attach($attributeOption);
@@ -84,7 +107,7 @@ class ProductSeeder extends Seeder
             } else {
                 $createdSku = $this->createProductSku($product);
 
-                $this->addImagesToProductSku($createdSku, $product->name);
+                $this->addImageToProductSku($createdSku, $product->name);
             }
         });
     }
@@ -95,50 +118,8 @@ class ProductSeeder extends Seeder
 
         return $product->skus()->create([
             'sku' => str()->random(10),
-            'price' => (int)round($price, -2),
+            'price' => (int)round($price, -3),
         ]);
-    }
-
-    /**
-     * Даём скидку 50% категории (продуктам с этой категорией)
-     * c наибольшим количеством продуктов, запрос делается здесь
-     * тк. для выполнения запроса с фильтрами нужны продукты,
-     * которые только сейчас и создались
-     *
-     * @return void
-     */
-    private function createDiscountForCategoryWithMostProducts(): void
-    {
-        $latestCategoryWithMostProducts = Category::query()
-            ->withCount('products')
-            ->orderBy('products_count', 'desc')
-            ->latest()
-            ->first();
-
-        $latestCategoryWithMostProducts->discount()->create([
-            'value' => 50,
-            'type' => SaleType::FIXED,
-            'starts_at' => now(),
-            'expires_at' => now()->addDays(21)
-        ]);
-    }
-
-    private function createProductTranslations($product): void
-    {
-        $fakers = [
-            Locale::RU->value => Factory::create('ru_RU'),
-            Locale::UZ->value => fake(),
-        ];
-
-        /** @var \Faker\Generator $faker */
-        foreach ($fakers as $locale => $faker) {
-            $name = $faker->unique()->words(mt_rand(1, 3), true);
-            $product->translateOrNew($locale)->name = $name;
-            $product->translateOrNew($locale)->slug = str()->slug($name, $locale);
-            $product->translateOrNew($locale)->description = $faker->realText(120);
-        }
-
-        $product->save();
     }
 
     /**
@@ -155,13 +136,12 @@ class ProductSeeder extends Seeder
      * @throws FileIsTooBig
      * @throws FileCannotBeAdded
      */
-    private function addImagesToProductSku(
+    private function addImageToProductSku(
         Sku $sku,
         string $textOnImage,
         int $n = 3
     ): void {
         foreach (range(1, mt_rand(1, $n)) as $value) {
-
             [$imageName, $imageText] = $this->getProductSkuImageTexts(
                 $textOnImage,
                 $value,
@@ -171,7 +151,7 @@ class ProductSeeder extends Seeder
             $sku
                 ->addMediaFromUrl($fakeImageUrl)
                 ->usingName($imageName)
-                ->usingFileName($imageName . '.png')
+                ->usingFileName(str($imageName)->slug() . '.png')
                 ->toMediaCollection();
         }
     }
@@ -221,8 +201,8 @@ class ProductSeeder extends Seeder
         );
 
         return [
-          $imageName,
-          $imageText,
+            $imageName,
+            $imageText,
         ];
     }
 }

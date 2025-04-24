@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Astrotomic\Translatable\Validation\RuleFactory;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAttributeRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreAttributeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,8 @@ class StoreAttributeRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        return RuleFactory::make([
+            'translations.%name%' => ['required', 'string'],
+        ]);
     }
 }

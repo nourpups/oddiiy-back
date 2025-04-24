@@ -1,0 +1,64 @@
+<?php
+
+use App\Enum\Locale;
+use App\Http\Controllers;
+use App\Http\Controllers\Admin;
+use App\Http\Resources\UserResource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('{locale}')->group(static function () {
+    Route::get('/', Controllers\HomeController::class);
+    Route::get('/search', Controllers\SearchController::class);
+    Route::middleware('auth:sanctum')->group(static function () {
+        Route::get('/user', function (Request $request) {
+            return new UserResource($request->user());
+        });
+    });
+
+    Route::prefix('/auth')->group(static function () {
+        Route::get('/otp-code', [Controllers\SmsVerficationController::class, 'sendOtp']);
+        Route::get('/register-otp-code', [Controllers\SmsVerficationController::class, 'sendRegisterOtp']);
+        Route::get('/login-otp-code', [Controllers\SmsVerficationController::class, 'sendLoginOtp']);
+        Route::post('/verify-sms', [Controllers\SmsVerficationController::class, 'verifyOtp']);
+        Route::controller(Controllers\AuthController::class)->group(static function () {
+            Route::post('/login', 'login');
+            Route::post('/register', 'register');
+            Route::post('/reset-password', 'resetPassword');
+            Route::post('/logout', 'logout')->middleware('auth:sanctum');
+        });
+    });
+
+    Route::prefix('/products')
+        ->controller(Controllers\ProductController::class)
+        ->group(static function () {
+            Route::get('/', 'index');
+            Route::get('/recommended', 'recommended');
+            Route::get('/{product:slug}', 'show');
+        });
+
+    Route::apiResource('users', Controllers\UserController::class);
+    Route::apiResource('categories', Controllers\CategoryController::class)->only(['index']);
+
+    Route::post('/orders', [Controllers\OrderController::class, 'store']);
+    Route::prefix('/coupons')
+        ->controller(Controllers\CouponController::class)
+        ->group(static function () {
+            Route::get('/first-order', 'firstOrder');
+        });
+
+    Route::prefix('/admin')->group(static function () {
+        Route::apiResource('products', Admin\ProductController::class)->scoped([
+            'product' => 'slug'
+        ]);
+        Route::apiResource('categories', Admin\CategoryController::class)->scoped([
+            'category' => 'slug'
+        ]);
+        Route::apiResource('tags', Controllers\TagController::class);
+        Route::apiResource('attributes.attribute-options', Admin\AttributeOptionController::class)
+            ->except(['index'])
+            ->shallow();
+        Route::apiResource('attributes', Admin\AttributeController::class)->except(['destroy']);
+        Route::apiResource('coupons', Admin\CouponController::class);
+    });
+})->whereIn('locale', Locale::cases());

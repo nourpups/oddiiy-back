@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\AttributeOption;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,15 +14,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory()->create([
-            'name' => 'OddiiyUser',
+            'name' => 'OoddiiyUser',
             'phone' => '+998901234567',
-            'password' => Hash::make('oddiiy'),
+            'password' => Hash::make('ooddiiy'),
         ]);
 
         User::factory()->create([
             'name' => 'IScuf',
             'phone' => '+998800858166',
-            'password' => Hash::make('oddiiy'),
+            'password' => Hash::make('ooddiiy'),
         ]);
 
         $this->call([
@@ -32,6 +30,10 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             CouponSeeder::class,
             ProductSeeder::class,
+            CollectionSeeder::class,
+            TagSeeder::class,
+            DiscountSeeder::class,
+            AddressSeeder::class,
         ]);
     }
 }

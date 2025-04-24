@@ -16,7 +16,20 @@ class ProductResource extends JsonResource
     {
         return [
             'id' => $this->id,
-
+            'name' => $this->name,
+            'description' => $this->whenNotNull($this->description),
+            'slug' => $this->slug,
+            'skus' => SkuResource::collection(
+                $this->whenLoaded(
+                    'skus',
+                    fn() => $this->skus->map(fn($sku) => $sku->setRelation('product_discount', $this->discount))
+                )
+            ),
+            'category' => new CategoryResource($this->whenLoaded('category')),
+            'discount' => new DiscountResource($this->whenLoaded('discount')),
+            'tag' => new TagResource($this->whenLoaded('tag')),
+            'orders' => OrderResource::collection($this->whenLoaded('orders')),
+            'images' => MediaResource::collection($this->whenLoaded('allImages'))
         ];
     }
 }

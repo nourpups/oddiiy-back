@@ -16,6 +16,8 @@ class AttributeOption extends Model implements TranslatableContract
 
     protected $fillable = ['attribute_id'];
 
+    protected $with = ['attribute'];
+
     public array $translatedAttributes = ['value'];
 
     public function attribute(): BelongsTo

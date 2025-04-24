@@ -20,7 +20,7 @@ class Order extends Model
         'status',
     ];
 
-    protected function casts()
+    protected function casts(): array
     {
         return [
             'status' => OrderStatus::class,

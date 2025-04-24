@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('coupon_id')->constrained();
+            $table->integer('delivery');
+            $table->integer('payment');
+            $table->text('comment');
             $table->integer('sum');
             $table->integer('status')->default(1);
             $table->timestamps();

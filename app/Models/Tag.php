@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
-use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Tag extends Model implements TranslatableContract
+class Tag extends Model
 {
     /** @use HasFactory<\Database\Factories\TagFactory> */
-    use HasFactory, Translatable;
+    use HasFactory;
 
-    public array $translatedAttributes = ['name'];
+   protected $fillable = ['name'];
 
     public function products(): HasMany
     {

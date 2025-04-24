@@ -2,9 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreProductRequest;
-use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\AttributeOptionCollection;
+use App\Http\Resources\AttributeOptionResource;
+use App\Http\Resources\AttributeResource;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ProductCollection;
+use App\Http\Resources\ProductResource;
+use App\Models\Attribute;
+use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ProductController extends Controller
 {
@@ -13,54 +21,41 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::with('translations')->get();
+        $products = Product::query()->with(['tag'])->get();
+        $attributes = Attribute::with('attributeOptions')->get();
+
+        return [
+            'categories' => (CategoryResource::collection($categories))
+                ->response()
+                ->getData(true),
+            'attributes' => (AttributeResource::collection($attributes))
+                ->response()
+                ->getData(true),
+            'products' => ProductResource::collection($products)
+                ->response()
+                ->getData(true),
+        ];
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreProductRequest $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(string $locale, Product $product): array
     {
-        //
+        $productIds = Product::query()->get()->pluck(['id'])->toArray();
+
+        return [
+          'product' => new ProductResource($product),
+          'productIds' => $productIds,
+        ];
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
+    public function recommended(): AnonymousResourceCollection
     {
-        //
-    }
+        $recommendedProducts = Product::query()->get()->random(4);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProductRequest $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
+        return ProductResource::collection($recommendedProducts);
     }
 }

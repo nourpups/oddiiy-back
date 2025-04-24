@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('locale')->index();
             $table->string('slug')->index();
             $table->string('name');
-            $table->text('description');
+            $table->text('description')->nullable();
 
             $table->unique(['product_id', 'locale']);
         });

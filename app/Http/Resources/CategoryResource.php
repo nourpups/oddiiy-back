@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property Product $randomProductWithAllImages
+ */
 class CategoryResource extends JsonResource
 {
     /**
@@ -14,6 +18,12 @@ class CategoryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'image' => new MediaResource($this->whenNotNull($this->image)),
+            'products' => ProductResource::collection($this->whenLoaded('products')),
+        ];
     }
 }

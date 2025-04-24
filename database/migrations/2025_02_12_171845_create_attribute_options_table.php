@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attribute_options', function (Blueprint $table) {
             $table->id();
-            $table->string('attribute_id');
+            $table->foreignId('attribute_id')->constrained();
             $table->timestamps();
         });
     }

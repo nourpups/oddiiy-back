@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\SaleType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCouponRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class StoreCouponRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +24,10 @@ class StoreCouponRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'code' => ['required', 'string'],
+            'value' => ['required', 'integer'],
+            'type' => ['required', Rule::enum(SaleType::class)],
+            'max_uses' => ['sometimes', 'integer'],
         ];
     }
 }

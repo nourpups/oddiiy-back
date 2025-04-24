@@ -17,6 +17,7 @@ class Coupon extends Model
         'value',
         'type',
         'max_uses',
+        'used',
     ];
 
     protected function casts(): array
