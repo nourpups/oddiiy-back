@@ -3,38 +3,19 @@ services:
     container_name: od_nginx
     image: nginx:latest
     ports:
-      - "80:80"
-      - "443:443"
+      - target: 80
+        published: 8000
+        protocol: tcp
     volumes:
       - ${PROJECT_PATH}:/var/www/${PROJECT_NAME}
       - ${PROJECT_PATH}/storage:/var/www/${PROJECT_NAME}/storage
-      - ${PROJECT_PATH}/docker/nginx/conf.d/default.dev.conf:/etc/nginx/conf.d/default.conf
-      - ${PROJECT_PATH}/docker/nginx/wait-for-front.sh:/wait-for-front.sh
+      - ${PROJECT_PATH}/docker/nginx/conf.d/default.prod.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
       - db
-      - front
-    command: [ "/bin/sh", "-c", "/wait-for-front.sh" ]
     networks:
       - od-app
-
-  front:
-    build:
-      context: ../ooddiiy-front
-      target: dev
-    container_name: od_front
-    restart: unless-stopped
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost
-      - NEXT_PUBLIC_API_URL_SSR=http://nginx
-      - NEXT_PUBLIC_API_VERSION_PREFIX=api/v1
-    volumes:
-      - ../ooddiiy-front:/app
-      - /app/node_modules
-    ports:
-      - "3000:3000"
-    networks:
-      - od-app
+      - od-net
 
   app:
     container_name: od_app
@@ -44,12 +25,11 @@ services:
     volumes:
       - ${PROJECT_PATH}:/var/www/${PROJECT_NAME}
       - ${PROJECT_PATH}/storage:/var/www/${PROJECT_NAME}/storage
-    expose:
-      - "9000"
     depends_on:
       - db
     networks:
       - od-app
+      - od-net
 
   db:
     container_name: od_db
@@ -74,3 +54,6 @@ volumes:
 networks:
   od-app:
     driver: bridge
+  od-net:
+    name: "od-net"
+    external: true
