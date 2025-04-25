@@ -47,7 +47,7 @@ Route::prefix('{locale}')->group(static function () {
             Route::get('/first-order', 'firstOrder');
         });
 
-    Route::prefix('/admin')->group(static function () {
+    Route::prefix('/admin')->as('admin.')->group(static function () {
         Route::apiResource('products', Admin\ProductController::class)->scoped([
             'product' => 'slug'
         ]);

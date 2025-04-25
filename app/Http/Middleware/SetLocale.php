@@ -18,6 +18,9 @@ class SetLocale
     {
         app()->setLocale($request->segment(3));
 
+//        if($request->secure()) {
+//            return redirect($request->path());
+//        }
         // чтобы не передавать locale при каждом испоьзовании route()
         // URL::defaults(['locale' => $request->segment(3)]);
 
