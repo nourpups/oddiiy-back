@@ -18,8 +18,8 @@ class DiscountResource extends JsonResource
             'id' => $this->id,
             'value' => $this->value,
             'type' => $this->type,
-            'starts_at' => $this->starts_at->format('Y-m-d'),
-            'expires_at' => $this->expires_at->format('Y-m-d'),
+            'starts_at' => $this->starts_at?->format('Y-m-d'),
+            'expires_at' => $this->expires_at?->format('Y-m-d'),
         ];
     }
 }
