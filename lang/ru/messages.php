@@ -4,6 +4,7 @@ return [
     'min' => [
         'price' => "Bro... Цена ниже :min сум?",
     ],
+    'images' => "Biiir dona rasm bolishi kerak kamida",
 
-    'unknown' => "No'malum xatolik, «U»nga xabar berish kerak"
+    'unknown' => "Неизвестная ошибка, надо «Ему» сообщить",
 ];

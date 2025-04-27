@@ -40,7 +40,7 @@ class UpdateProductRequest extends FormRequest
             'discount' => ['sometimes', new RemovedOr('array')],
             'discount.value' => ['present_if:discount,array', 'integer'],
             'discount.type' => ['present_if:discount,array', Rule::enum(SaleType::class)],
-            'discount.starts_at' => ['sometimes', new RemovedOr('after:today')],
+            'discount.starts_at' => ['sometimes', new RemovedOr()],
             'discount.expires_at' => ['sometimes', new RemovedOr(['date', 'after:discount.starts_at'])],
             'skus.*.id' => ['sometimes', 'numeric', 'exists:skus,id'],
             'skus.*.price' => ['required', 'numeric', 'min:1000'],
@@ -54,7 +54,8 @@ class UpdateProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'skus.*.price' => __('messages.min.price')
+            'skus.*.price' => __('messages.min.price'),
+            'skus.*.images' => __('messages.images'),
         ];
     }
 }

@@ -113,7 +113,7 @@ class ProductController extends Controller
 
             // Product
             $product->update([
-                'translations' => $translations,
+                ...$translations,
                 'category_id' => $validated['category_id'],
                 'tag_id' => $validated['tag_id'] !== RemoveKey::REMOVE->value ? $validated['tag_id'] : null,
             ]);
