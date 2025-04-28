@@ -22,7 +22,12 @@ class AttributeController extends Controller
 
     public function store(StoreAttributeRequest $request): AttributeResource
     {
-        $attribute = Attribute::query()->create([...$request->validated('translations')]);
+        $data = [
+            ...$request->validated('translations'),
+            ...$request->safe()->except('translations')
+        ];
+
+        $attribute = Attribute::query()->create($data);
 
         $attribute->load(['attributeOptions', 'translations']);
 
@@ -38,7 +43,12 @@ class AttributeController extends Controller
 
     public function update(UpdateAttributeRequest $request, string $locale, Attribute $attribute): AttributeResource
     {
-        $attribute->update([...$request->validated('translations')]);
+        $data = [
+            ...$request->safe(['translations']),
+            ...$request->safe()->except('translations')
+        ];
+
+        $attribute->update($data);
 
         $attribute->load(['attributeOptions', 'translations']);
 

@@ -16,8 +16,13 @@ class Attribute extends Model implements TranslatableContract
 {
     /** @use HasFactory<\Database\Factories\AttributeFactory> */
     use HasFactory, Translatable;
+    protected $fillable = ['is_options_multiselect'];
 
     public array $translatedAttributes = ['name'];
+
+    protected $casts = [
+        'is_options_multiselect' => 'boolean'
+    ];
 
     public function attributeOptions(): HasMany
     {

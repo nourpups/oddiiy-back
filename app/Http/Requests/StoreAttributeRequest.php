@@ -22,8 +22,11 @@ class StoreAttributeRequest extends FormRequest
      */
     public function rules(): array
     {
-        return RuleFactory::make([
-            'translations.%name%' => ['required', 'string'],
-        ]);
+        return [
+            ...RuleFactory::make([
+                'translations.%name%' => ['required', 'string'],
+            ]),
+            'is_options_multiselect' => ['required', 'boolean']
+        ];
     }
 }

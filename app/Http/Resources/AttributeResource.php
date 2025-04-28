@@ -19,6 +19,7 @@ class AttributeResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'is_options_multiselect' => $this->is_options_multiselect,
             'options' => AttributeOptionResource::collection($this->whenLoaded('attributeOptions')),
             'translations' => AttributeTranslationResource::collection($this->whenLoaded('translations')),
         ];
