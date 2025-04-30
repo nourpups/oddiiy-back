@@ -15,10 +15,10 @@ class ForceJsonResponse
      */
     public function handle(Request $request, Closure $next): Response
     {
-//        $request->headers->set('Content-Type', 'application/json');
-        $response = $next($request);
-        $response->headers->set('Content-Type', 'application/json');
+        if ($request->headers->get('Content-Type') !== 'multipart/form-data') {
+            $request->headers->set('Content-Type', 'application/json');
+        }
 
-        return $response;
+        return  $next($request);
     }
 }

@@ -32,10 +32,11 @@ Route::prefix('{locale}')->group(static function () {
     Route::prefix('/products')
         ->controller(Controllers\ProductController::class)
         ->group(static function () {
-            Route::get('/', 'index');
             Route::get('/recommended', 'recommended');
             Route::get('/{product:slug}', 'show');
         });
+
+    Route::get('/catalog', Controllers\CatalogController::class);
 
     Route::apiResource('users', Controllers\UserController::class);
     Route::apiResource('categories', Controllers\CategoryController::class)->only(['index']);
@@ -54,11 +55,12 @@ Route::prefix('{locale}')->group(static function () {
         Route::apiResource('categories', Admin\CategoryController::class)->scoped([
             'category' => 'slug'
         ]);
+        Route::apiResource('collections', Admin\CollectionController::class);
         Route::apiResource('tags', Controllers\TagController::class);
+        Route::apiResource('attributes', Admin\AttributeController::class)->except(['destroy']);
         Route::apiResource('attributes.attribute-options', Admin\AttributeOptionController::class)
             ->except(['index'])
             ->shallow();
-        Route::apiResource('attributes', Admin\AttributeController::class)->except(['destroy']);
         Route::apiResource('coupons', Admin\CouponController::class);
     });
 })->whereIn('locale', Locale::cases());

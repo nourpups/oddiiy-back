@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,6 +15,15 @@ class Collection extends Model
     protected $fillable = [
         'name',
         'slug',
+        'is_featured',
+    ];
+
+    protected $with = [
+        'products.allImages'
+    ];
+
+    protected $casts = [
+        'is_featured' => 'boolean'
     ];
 
     public function products(): BelongsToMany

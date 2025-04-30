@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CollectionResource;
-use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
 use App\Models\Collection;
 use App\Models\Product;
@@ -18,20 +17,18 @@ class HomeController extends Controller
     public function __invoke(Request $request): array
     {
         $collections = Collection::with([
-            'products' => fn(Builder $query): Builder => $query->limit(2),
-        ])->paginate(2);
-
-        $products = Product::with([
-            'category.translations',
-            'discount',
-            'tag',
-            'skus',
+            'products' => function (Builder $q) {
+                $q->limit(2);
+            }
         ])
+            ->where('is_featured', true)
             ->get();
+        $products = Product::all();
 
         $productResourceCollection = ProductResource::collection($products);
         $productResourceCollection->collection
             = $productResourceCollection->collection->groupBy('tag.name');
+
         return [
             'collections' => (CollectionResource::collection($collections))
                 ->response()

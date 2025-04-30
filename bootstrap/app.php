@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Middleware\ForceJsonResponse;
-use App\Http\Middleware\PhpIniMiddleware;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api/v1'
     )
     ->withMiddleware(function (Middleware $middleware) {
+//        $middleware->statefulApi();
         $middleware->prependToGroup('api', [
             ForceJsonResponse::class,
             SetLocale::class,

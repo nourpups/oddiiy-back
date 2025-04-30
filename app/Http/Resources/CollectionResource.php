@@ -17,8 +17,10 @@ class CollectionResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'is_featured' => $this->is_featured,
             'slug' => $this->slug,
             'products' => ProductResource::collection($this->whenLoaded('products')),
+            'products_count' => $this->whenCounted('products'),
         ];
     }
 }

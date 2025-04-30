@@ -44,7 +44,8 @@ class Product extends Model implements TranslatableContract
 
     public function resolveRouteBinding($value, $field = null): self
     {
-        return $this->where('id', $value)
+        return $this->query()
+            ->where('id', $value)
             ->orWhereHas(
                 'translations',
                 static fn(Builder $q) => $q->where('slug', $value)

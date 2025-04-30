@@ -11,7 +11,7 @@ class UpdateCollectionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class UpdateCollectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string'],
+            'is_featured' => ['required', 'boolean'],
+            'product_ids' => ['required', 'array'],
+            'product_ids.*' => ['required', 'integer'],
         ];
     }
 }

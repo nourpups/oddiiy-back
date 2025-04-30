@@ -26,12 +26,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::query()
-            ->with([
-                'tag',
-                'category',
-                'discount',
-                'skus'
-            ])
+            ->with(['allImages'])
             ->latest()
             ->get();
 
