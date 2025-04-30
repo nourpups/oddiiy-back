@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class ForceJsonResponse
@@ -15,7 +17,7 @@ class ForceJsonResponse
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->headers->get('Content-Type') !== 'multipart/form-data') {
+        if (Str::doesntContain($request->headers->get('Content-Type'), 'multipart/form-data')) {
             $request->headers->set('Content-Type', 'application/json');
         }
 
