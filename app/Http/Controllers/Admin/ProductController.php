@@ -73,12 +73,13 @@ class ProductController extends Controller
 
                 foreach ($skuToCreate['images'] as $imageToCreate) {
                     $file = UploadedFile::createFromBase($imageToCreate);
-                    $fileName = $file->getClientOriginalName();
+                    $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $ext = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
 
                     $sku
                         ->addMedia($file)
                         ->usingName($fileName)
-                        ->usingFileName(str($fileName)->slug() . $file->getExtension())
+                        ->usingFileName(str($fileName)->slug() . '.' .  $ext)
                         ->toMediaCollection();
                 }
             }

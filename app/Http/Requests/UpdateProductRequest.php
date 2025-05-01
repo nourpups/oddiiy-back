@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enum\SaleType;
 use App\Rules\RemovedOr;
-use App\Rules\UpdateSkuImage;
+use App\Rules\UpdateMediaImage;
 use Astrotomic\Translatable\Validation\RuleFactory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
@@ -47,7 +47,7 @@ class UpdateProductRequest extends FormRequest
             'skus.*.attributes' => ['sometimes', new RemovedOr('array')],
             'skus.*.attributes.*' => ['present_if:skus.*.attributes,array', 'integer'],
             'skus.*.images' => ['required', 'array'],
-            'skus.*.images.*' => ['required', new UpdateSkuImage]
+            'skus.*.images.*' => ['required', new UpdateMediaImage]
         ];
     }
 

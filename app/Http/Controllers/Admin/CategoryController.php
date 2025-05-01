@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
-use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\Admin\CategoryResource;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Sku;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
@@ -21,15 +21,10 @@ class CategoryController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $categories = Category::with(['randomProductWithAllImages'])
+        $categories = Category::with(['image'])
             ->withCount('products')
             ->latest()
-            ->get()
-            ->map(function (Category $category) {
-                $category['image'] = $category->randomProductWithAllImages?->allImages->random();
-
-                return $category;
-            });
+            ->get();
 
         return CategoryResource::collection($categories);
     }
@@ -46,12 +41,21 @@ class CategoryController extends Controller
 
         $category = Category::query()->create([...$translations]);
 
+        $file = UploadedFile::createFromBase($validated['image']);
+        $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $ext = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+
+        $category->addMedia($file)
+            ->usingName($fileName)
+            ->usingFileName(str($fileName)->slug() . '.' . $ext)
+            ->toMediaCollection('mainImage');
+
         return new CategoryResource($category);
     }
 
     public function show(string $locale, Category $category): CategoryResource
     {
-        $category->load('randomProductWithAllImages')->loadCount('products');
+        $category->loadCount('products');
 
         return new CategoryResource($category);
     }
@@ -68,12 +72,25 @@ class CategoryController extends Controller
 
         $category->update([...$translations]);
 
+
+        if ($request->has('image')) {
+            $file = UploadedFile::createFromBase($validated['image']);
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $ext = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+
+            $category->addMedia($file)
+                ->usingName($fileName)
+                ->usingFileName(str($fileName)->slug() . '.' . $ext)
+                ->toMediaCollection('mainImage');
+        }
+
         return new CategoryResource($category);
     }
 
     public function destroy(string $locale, Category $category): Response
     {
         $category->deleteTranslations();
+        $category->image()->delete();
         $category->load('products.skus');
         $category->products->map(function (Product $product) {
             $product->skus->map(function (Sku $sku) {

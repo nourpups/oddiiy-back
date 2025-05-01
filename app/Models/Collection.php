@@ -14,6 +14,7 @@ class Collection extends Model
 
     protected $fillable = [
         'name',
+        'title',
         'slug',
         'is_featured',
     ];

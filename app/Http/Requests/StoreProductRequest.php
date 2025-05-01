@@ -35,7 +35,7 @@ class StoreProductRequest extends FormRequest
             'discount' => ['sometimes', 'array:value,type,starts_at,expires_at'],
             'discount.value' => ['required_with:discount', 'integer'],
             'discount.type' => ['required_with:discount', Rule::enum(SaleType::class)],
-            'discount.starts_at' => ['sometimes', 'after:today'],
+            'discount.starts_at' => ['sometimes', 'date', 'after:yesterday'],
             'discount.expires_at' => ['sometimes', 'date', 'after:discount.starts_at'],
             'skus.*.price' => ['required', 'numeric', 'min:1000'],
             'skus.*.attributes' => ['sometimes', 'array'],

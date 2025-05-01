@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\File as FileRule;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class UpdateSkuImage implements ValidationRule
+class UpdateMediaImage implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

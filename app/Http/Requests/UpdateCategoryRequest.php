@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\UpdateMediaImage;
 use Astrotomic\Translatable\Validation\RuleFactory;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -22,8 +23,11 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        return RuleFactory::make([
-            'translations.%name%' => ['required', 'string'],
-        ]);
+        return[
+            ...RuleFactory::make([
+                'translations.%name%' => ['required', 'string'],
+            ]),
+            'image' => ['sometimes', new UpdateMediaImage],
+        ];
     }
 }

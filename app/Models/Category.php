@@ -9,13 +9,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Category extends Model implements TranslatableContract
+class Category extends Model implements TranslatableContract, HasMedia
 {
     /** @use HasFactory<\Database\Factories\CategoryFactory> */
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, InteractsWithMedia;
 
     public array $translatedAttributes = [
         'name',
@@ -23,7 +26,8 @@ class Category extends Model implements TranslatableContract
     ];
 
     protected $with = [
-      'translations'
+        'translations',
+        'image'
     ];
 
     public function resolveRouteBinding($value, $field = null): self
@@ -40,10 +44,17 @@ class Category extends Model implements TranslatableContract
         return $this->hasMany(Product::class);
     }
 
-    public function randomProductWithAllImages(): HasOne
+    public function image(): MorphOne
     {
-        return $this->hasOne(Product::class)
-            ->with('allImages')
-            ->inRandomOrder();
+        // https://github.com/spatie/laravel-medialibrary/issues/1047#issuecomment-853718949
+        return $this->morphOne(Media::class, 'model')
+            ->where('collection_name', 'mainImage');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('mainImage')
+            ->singleFile();
     }
 }

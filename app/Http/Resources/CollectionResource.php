@@ -16,6 +16,7 @@ class CollectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'title' => $this->title,
             'name' => $this->name,
             'is_featured' => $this->is_featured,
             'slug' => $this->slug,

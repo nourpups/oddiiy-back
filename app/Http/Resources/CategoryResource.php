@@ -6,9 +6,6 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property Product $randomProductWithAllImages
- */
 class CategoryResource extends JsonResource
 {
     /**
@@ -22,7 +19,7 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'image' => new MediaResource($this->whenNotNull($this->image)),
+            'image' => new MediaResource($this->whenLoaded('image')),
             'products' => ProductResource::collection($this->whenLoaded('products')),
         ];
     }

@@ -63,11 +63,14 @@ class SyncSkusWithProductAction
             $incoming
                 ->filter(fn($image) => $image instanceof UploadedFile)
                 ->each(function (UploadedFile $file) use ($sku) {
-                    $fileName = $file->getClientOriginalName();
+                    $file = UploadedFile::createFromBase($file);
+                    $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $ext = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+
                     $sku
                         ->addMedia($file)
                         ->usingName($fileName)
-                        ->usingFileName(str($fileName)->slug() . '.' . $file->getClientOriginalExtension())
+                        ->usingFileName(str($fileName)->slug() . '.' .  $ext)
                         ->toMediaCollection();
                 });
         }

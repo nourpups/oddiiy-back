@@ -22,8 +22,9 @@ class UpdateCollectionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'title' => ['required', 'string'],
             'name' => ['required', 'string'],
-            'is_featured' => ['required', 'boolean'],
+            'is_featured' => ['sometimes', 'boolean'],
             'product_ids' => ['required', 'array'],
             'product_ids.*' => ['required', 'integer'],
         ];

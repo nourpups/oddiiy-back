@@ -23,6 +23,7 @@ class StoreCollectionRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
+            'title' => ['required', 'string'],
             'product_ids' => ['required', 'array'],
             'product_ids.*' => ['required', 'integer'],
         ];

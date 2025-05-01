@@ -17,13 +17,9 @@ class CatalogController extends Controller
 {
     public function __invoke()
     {
-        $collections = Collection::with([
-            'products' => function (Builder $q) {
-                $q->limit(2);
-            }
-        ])->get();
+        $collections = Collection::query()->get();
         $categories = Category::with('translations')->get();
-        $products = Product::query()->with(['tag'])->get();
+        $products = Product::query()->with(['tag', 'allImages'])->get();
         $attributes = Attribute::with('attributeOptions')->get();
 
         return [

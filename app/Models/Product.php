@@ -26,6 +26,7 @@ class Product extends Model implements TranslatableContract
 
     protected $fillable = [
         'category_id',
+        'tag_id',
     ];
 
     protected $with = [

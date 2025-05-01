@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Astrotomic\Translatable\Validation\RuleFactory;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class StoreCategoryRequest extends FormRequest
 {
@@ -22,8 +23,11 @@ class StoreCategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        return RuleFactory::make([
-            'translations.%name%' => ['required', 'string'],
-        ]);
+        return [
+            ...RuleFactory::make([
+                'translations.%name%' => ['required', 'string'],
+            ]),
+            'image' => ['required', File::image()->max(4096)]
+        ];
     }
 }
