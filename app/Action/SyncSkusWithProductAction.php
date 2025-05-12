@@ -5,7 +5,9 @@ namespace App\Action;
 use App\Enum\RemoveKey;
 use App\Models\Product;
 use App\Models\Sku;
+use App\Models\SkuVariant;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 
 class SyncSkusWithProductAction
 {
@@ -16,44 +18,70 @@ class SyncSkusWithProductAction
             ->filter()
             ->toArray();
 
-        // Удаляем все старые SKU, которых нет в новых данных
+        // Удаление отсутствующих SKU
         $product->skus()
             ->whereNotIn('id', $incomingSkuIds)
             ->each(function (Sku $sku) {
                 $sku->attributeOptions()->detach();
-                $sku->discount()->delete();
+                $sku->variants()->delete(); // Удаляем варианты
+                $sku->discount()?->delete();
                 $sku->delete();
             });
 
-        // Обрабатываем каждый sku
         foreach ($skus as $skuData) {
-            if (isset($skuData['id'])) {
-                $sku = Sku::query()->findOrFail($skuData['id']);
-                $sku->update([
-                    'price' => $skuData['price'],
-                ]);
-            } else {
-                $sku = $product->skus()->create([
+            $sku = isset($skuData['id'])
+                ? Sku::query()->findOrFail($skuData['id'])
+                : $product->skus()->create([
                     'sku' => str()->random(11),
                     'price' => $skuData['price'],
                 ]);
+
+            if (isset($skuData['id'])) {
+                $sku->update(['price' => $skuData['price']]);
             }
 
-            // Обновляем атрибуты
-            if (array_key_exists('attributes', $skuData)) {
-                // очистить если возвращается специальный ключ
-                if ($skuData['attributes'] === RemoveKey::REMOVE->value) {
-                    $sku->attributeOptions()?->detach();
-                } else {
-                    $sku->attributeOptions()->sync($skuData['attributes']);
-                }
+            if ($skuData['combinations'] === RemoveKey::REMOVE->value) {
+                $skuVariantIds = $sku->variants->pluck('id');
+
+                DB::table('attribute_option_sku_attribute')
+                    ->whereIn('id', $skuVariantIds)
+                    ->delete();
+                $sku->variants()->delete();
+            } else {
+                $incomingCombinations = collect($skuData['combinations']);
+                $existingSkuVariantIds = $incomingCombinations
+                    ->where('id', "!=", 0)
+                    ->pluck('id')
+                    ->toArray();
+
+                // синхронизировать варианты sku
+                SkuVariant::query()
+                    ->where('sku_id', $sku->id)
+                    ->whereNotIn('id', $existingSkuVariantIds)
+                    ->get()
+                    ->each(static function (SkuVariant $skuVariant) {
+                        $skuVariant->attributeOptions()->detach();
+                        $skuVariant->delete();
+                    });
+
+                // создать новые варианты sku
+                $incomingCombinations
+                    ->where('id', "==", 0)
+                    ->each(static function ($combination) use ($sku) {
+                        /** @var SkuVariant $variant */
+                        $variant = $sku->variants()->create([
+                            'stock' => $combination['stock'],
+                            'model_id' => null, // @todo: реализовать логику
+                        ]);
+
+                        $variant->attributeOptions()->attach($combination['options']);
+                    });
             }
 
-            // Обновляем изображения
+            // Обработка изображений
             $incoming = collect($skuData['images'] ?? []);
             $existingMediaIds = $incoming
                 ->filter(fn($image) => is_string($image))
-                ->map(fn($uuid) => $uuid)
                 ->values();
 
             $sku->media()
@@ -70,7 +98,7 @@ class SyncSkusWithProductAction
                     $sku
                         ->addMedia($file)
                         ->usingName($fileName)
-                        ->usingFileName(str($fileName)->slug() . '.' .  $ext)
+                        ->usingFileName(str($fileName)->slug() . '.' . $ext)
                         ->toMediaCollection();
                 });
         }

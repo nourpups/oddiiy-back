@@ -2,16 +2,18 @@
 
 namespace App\Http\Requests;
 
+use App\Traits\Validation\AddressValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOrderRequest extends FormRequest
 {
+    use AddressValidationRules;
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,17 +26,7 @@ class StoreOrderRequest extends FormRequest
         return [
             'user_id' => ['required', 'numerical', 'exists:users,id'],
 
-            'address' => ['required', 'array'],
-            'address.region' => ['required', 'string', 'max:255'],
-            'address.city' => ['required', 'string', 'max:255'],
-            'address.district' => ['nullable', 'string', 'max:255'],
-            'address.street' => ['required', 'string', 'max:255'],
-            'address.house' => ['required', 'string', 'max:10'],
-            'address.entrance' => ['nullable', 'string', 'max:10'],
-            'address.floor' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'address.apartment' => ['nullable', 'string', 'max:10'],
-            'address.orientation' => ['nullable', 'string', 'max:255'],
-            'address.postal' => ['nullable', 'string', 'max:10'],
+            ...$this->prefixedAddressRules(),
 
             'cart' => ['required', 'array'],
             'cart.*.product_id' => ['required', 'exists:products,id'],
@@ -45,5 +37,12 @@ class StoreOrderRequest extends FormRequest
             'total_price' => ['required', 'integer', 'min:1'],
             'comment' => ['nullable', 'string']
         ];
+    }
+
+    private function prefixedAddressRules(): array
+    {
+        return collect($this->addressRules('address'))
+            ->mapWithKeys(fn($rule, $key) => ["address.$key" => $rule])
+            ->toArray();
     }
 }

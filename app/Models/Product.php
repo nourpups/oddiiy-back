@@ -43,7 +43,7 @@ class Product extends Model implements TranslatableContract
         'description',
     ];
 
-    public function resolveRouteBinding($value, $field = null): self
+    public function resolveRouteBinding($value, $field = null): self|null
     {
         return $this->query()
             ->where('id', $value)

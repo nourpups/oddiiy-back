@@ -38,7 +38,7 @@ Route::prefix('{locale}')->group(static function () {
 
     Route::get('/catalog', Controllers\CatalogController::class);
 
-    Route::apiResource('users', Controllers\UserController::class);
+    Route::apiResource('users', Controllers\UserController::class)->only(['update']);
     Route::apiResource('categories', Controllers\CategoryController::class)->only(['index']);
 
     Route::post('/orders', [Controllers\OrderController::class, 'store']);

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enum\DiscordEmotes;
 use App\Enum\Locale;
-use App\Enum\SaleType;
 use App\Models\Attribute;
 use App\Models\AttributeOption;
 use App\Models\Category;
@@ -11,7 +11,6 @@ use App\Models\Product;
 use App\Models\Sku;
 use Faker\Factory;
 use Faker\Generator;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Mmo\Faker\FakeimgProvider;
@@ -36,7 +35,7 @@ class ProductSeeder extends Seeder
         DB::transaction(function () {
             Category::all()->each(function (Category $category) {
                 Product::factory()
-                    ->count(mt_rand(1, 2))
+                    ->count(mt_rand(1, 3))
                     ->for($category)
                     ->create()
                     ->each(function (Product $product) {
@@ -50,7 +49,6 @@ class ProductSeeder extends Seeder
                     });
             });
             dump('Peak usage: ' . memory_get_peak_usage() / 1024 / 1024 . ' MBs');
-
         });
     }
 
@@ -73,43 +71,45 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * с 70% шансом у продукта будет атрибут (пока  у нас только Цвет),
-     * и от 1 до 3 "вариантов" этого атрибута (Белый, Черный, Голубой)
-     *
-     * вариантов 3, тк. в AttributeSeeder столько вариантов
-     * и создаётся, учти для будущих изменений
+     * с 90% шансом у продукта будет атрибут (пока у нас только Цвет и Размер),
+     * и с 20% вероятностью 1 из опций атрибутов кроме Rang не добавится к sku,
+     * тем самым мы добъемся наличия:
+     * 1) только Rang (20%);
+     * 2) Rang и O'lcham (100-20=80%);
+     * 3) никаких атрибутов (100-90=10%);
+     * для sku
      *
      * @param Product $product
      * @return void
      */
     private function createProductVariants(Product $product): void
     {
-        $attributes = Attribute::with('attributeOptions')->get();
+        $attributes = Attribute::with('options')->get();
 
-        $attributes->map(function (Attribute $attribute) use ($product) {
-            if (mt_rand(1, 10) <= 7) {
-                $attribute->attributeOptions
-                    ->random(mt_rand(1, 3))
-                    ->map(function (AttributeOption $attributeOption) use ($product) {
-                        $createdSku = $this->createProductSku($product);
+        foreach (range(1, mt_rand(1, 3)) as $value) {
+            $createdSku = $this->createProductSku($product);
+            $attributes->each(function (Attribute $attribute) use ($product, $createdSku) {
+                if (mt_rand(1, 10) <= 90) {
+                    $option = $attribute->options->random();
 
-                        // прикрепляем изображения
-                        $textOnImage = sprintf(
-                            '%s %s',
-                            $product->name,
-                            $attributeOption->value
-                        );
-                        $this->addImageToProductSku($createdSku, $textOnImage, 2);
+                    if ($attribute->id > 1 && mt_rand(1, 10) <= 2) {
+                        return;
+                    }
+                    // прикрепляем изображения
+                    $textOnImage = sprintf(
+                        '%s %s',
+                        $product->name,
+                        $option->value
+                    );
+                    $this->addImageToProductSku($createdSku, $textOnImage, 2);
 
-                        // прикрепляем варианты
-                        $createdSku->attributeOptions()->attach($attributeOption);
-                    });
-            } else {
-                $createdSku = $this->createProductSku($product);
-
-                $this->addImageToProductSku($createdSku, $product->name);
-            }
-        });
+                    // прикрепляем варианты
+                    $createdSku->attributeOptions()->attach($option);
+                } else {
+                    $this->addImageToProductSku($createdSku, $product->name);
+                }
+            });
+        }
     }
 
     private function createProductSku(Product $product): Sku
@@ -117,7 +117,7 @@ class ProductSeeder extends Seeder
         $price = fake()->numberBetween(100_000, 600_000);
 
         return $product->skus()->create([
-            'sku' => str()->random(10),
+            'sku' => str()->random(11),
             'price' => (int)round($price, -3),
         ]);
     }
@@ -187,12 +187,12 @@ class ProductSeeder extends Seeder
             $ordinal,
         );
 
-        $discordEmotes = collect([
-            '<:Pepe:1341123333529403393>',
-            '<:pepesip:1341124093524578305>',
-            '<:Welcome:1341125555482787841>',
-            '<:slavic_pepe:1341125889030750370>',
-        ]);
+        $discordEmotes = collect(
+            array_map(
+                static fn($emote) => $emote->value,
+                DiscordEmotes::cases()
+            )
+        );
         $imageText = sprintf(
             '%s %s %s',
             $text,

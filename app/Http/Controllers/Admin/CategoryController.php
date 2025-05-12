@@ -7,11 +7,17 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\Admin\CategoryResource;
 use App\Models\Category;
+use App\Models\CategoryTranslation;
+use App\Models\Discount;
 use App\Models\Product;
+use App\Models\ProductTranslation;
 use App\Models\Sku;
+use App\Models\SkuVariant;
+use App\Models\Stock;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
@@ -89,23 +95,26 @@ class CategoryController extends Controller
 
     public function destroy(string $locale, Category $category): Response
     {
-        $category->deleteTranslations();
-        $category->image()->delete();
-        $category->load('products.skus');
-        $category->products->map(function (Product $product) {
-            $product->skus->map(function (Sku $sku) {
-                $sku->attributeOptions()->detach();
-                $sku->discount()->delete();
-                $sku->delete();
-            });
+        return DB::transaction(static function () use ($category) {
+            $productIds = $category->products()->pluck('id');
+            $skuIds = Sku::query()->whereIn('product_id', $productIds)->pluck('id');
 
-            $product->discount()->delete();
-            $product->deleteTranslations();
-            $product->collections()->detach();
-            $product->delete();
+            Discount::query()->whereIn('discountable_id', [...$skuIds, ...$productIds])->delete();
+
+            DB::table('attribute_option_sku')->whereIn('sku_id', $skuIds)->delete();
+            SkuVariant::query()->whereIn('sku_id', $skuIds)->delete();
+            Sku::query()->whereIn('product_id', $productIds)->delete();
+
+            DB::table('collection_product')->whereIn('product_id', $productIds)->delete();
+            ProductTranslation::query()->whereIn('product_id', $productIds);
+            Product::query()->whereIn('id', $productIds)->delete();
+
+            CategoryTranslation::query()->where('category_id', $category->id)->delete();
+            $category->image()->delete();
+
+            $category->delete();
+
+            return response()->noContent();
         });
-        $category->delete();
-
-        return response()->noContent();
     }
 }

@@ -24,7 +24,7 @@ class Attribute extends Model implements TranslatableContract
         'is_options_multiselect' => 'boolean'
     ];
 
-    public function attributeOptions(): HasMany
+    public function options(): HasMany
     {
         return $this->hasMany(AttributeOption::class);
     }

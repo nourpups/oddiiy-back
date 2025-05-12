@@ -16,7 +16,7 @@ class AttributeOptionController extends Controller
         $data = [...$request->validated('translations')];
 
         $option = $attribute
-            ->attributeOptions()
+            ->options()
             ->create($data);
 
         return new AttributeOptionResource($option);

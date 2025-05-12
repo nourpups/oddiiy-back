@@ -16,7 +16,8 @@ class AttributeSeeder extends Seeder
         // Атрибут пока только один - Цвет
         $attributes = [
             [
-                'name' => [
+                'is_options_multiselect' => false,
+                'translations' => [
                     'ru' => ['name' => 'Цвет'],
                     'uz' => ['name' => 'Rang'],
                 ],
@@ -35,17 +36,34 @@ class AttributeSeeder extends Seeder
                     ]
                 ]
             ],
-
-            // ... ещё атрибуты
+            [
+                'is_options_multiselect' => true,
+                'translations' => [
+                    'ru' => ['name' => 'Размер'],
+                    'uz' => ['name' => "O'lcham"],
+                ],
+                'options' => [
+                    [
+                        'ru' => ['value' => 'XL (160/175)'],
+                        'uz' => ['value' => 'XL (160/175)'],
+                    ],
+                    [
+                        'ru' => ['value' => 'XXL (176/186)'],
+                        'uz' => ['value' => 'XXL (176/186)'],
+                    ],
+                ]
+            ],
         ];
 
         foreach ($attributes as $attribute) {
             DB::transaction(static function () use ($attribute) {
-                $createdAttribute = Attribute::factory()->create($attribute['name']);
+                $createdAttribute = Attribute::factory()->create([
+                    'is_options_multiselect' => $attribute['is_options_multiselect'],
+                    ...$attribute['translations'],
+                ]);
 
                 foreach ($attribute['options'] as $option) {
-                    $ao = $createdAttribute->attributeOptions()->create($option);
-                    $ao->load('translations');
+                    $createdAttribute->options()->create($option);
                 }
             });
         }

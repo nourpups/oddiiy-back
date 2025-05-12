@@ -37,15 +37,22 @@ class UpdateProductRequest extends FormRequest
             ]),
             'tag_id' => ['sometimes', new RemovedOr('integer')],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
+
             'discount' => ['sometimes', new RemovedOr('array')],
             'discount.value' => ['present_if:discount,array', 'integer'],
             'discount.type' => ['present_if:discount,array', Rule::enum(SaleType::class)],
-            'discount.starts_at' => ['sometimes', new RemovedOr()],
-            'discount.expires_at' => ['sometimes', new RemovedOr(['date', 'after:discount.starts_at'])],
+            'discount.starts_at' => ['sometimes', new RemovedOr(), 'date'],
+            'discount.expires_at' => ['sometimes', new RemovedOr(), 'date', 'after:discount.starts_at'],
+
             'skus.*.id' => ['sometimes', 'numeric', 'exists:skus,id'],
             'skus.*.price' => ['required', 'numeric', 'min:1000'],
-            'skus.*.attributes' => ['sometimes', new RemovedOr('array')],
-            'skus.*.attributes.*' => ['present_if:skus.*.attributes,array', 'integer'],
+            'skus.*.stock' => ['sometimes', 'numeric'],
+
+            'skus.*.combinations' => ['sometimes', new RemovedOr('array')],
+            'skus.*.combinations.*.id' => ['required_with:skus.combinations', new RemovedOr('numeric')],
+            'skus.*.combinations.*.options' => ['required_with:skus.combinations', 'array'],
+            'skus.*.combinations.*.stock' => ['required_with:skus.combinations', 'integer'],
+
             'skus.*.images' => ['required', 'array'],
             'skus.*.images.*' => ['required', new UpdateMediaImage]
         ];

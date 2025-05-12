@@ -23,8 +23,9 @@ class CollectionSeeder extends Seeder
             "Hozir yasha"
         ]);
 
-        $collectionsToCreate = $collections->map(static function (string $item) use ($collections) {
+        $collectionsToCreate = $collections->map(static function (string $item) {
            return [
+               'title' => "$item sarlavhacha",
                'name' => $item,
                'slug' => str($item)->slug(language: 'uz'),
            ];
@@ -41,6 +42,5 @@ class CollectionSeeder extends Seeder
                 $collection->products()->attach($productIds);
             });
         });
-
     }
 }

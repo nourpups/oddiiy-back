@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-enum AttributeOption: int
+enum AttributeId: int
 {
     case COLOR = 1;
 }

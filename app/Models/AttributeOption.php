@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AttributeOption extends Model implements TranslatableContract
 {
@@ -28,5 +29,11 @@ class AttributeOption extends Model implements TranslatableContract
     public function skus(): BelongsToMany
     {
         return $this->belongsToMany(Sku::class);
+    }
+
+    public function variants(): BelongsToMany
+    {
+        return $this->belongsToMany(SkuVariant::class)
+            ->withTimestamps();
     }
 }

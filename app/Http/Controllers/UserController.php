@@ -12,37 +12,8 @@ use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function update(UpdateUserRequest $request, string $locale, User $user): UserResource
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreUserRequest $request)
-    {
-        $data = $request->validated();
-        dd($data);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Request $request)
-    {
-//        return new UserResource($user);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateUserRequest $request, string $locale, User $user)
-    {
-
         $address = $request->validated('address');
 
         if (isset($address)) {
@@ -51,16 +22,9 @@ class UserController extends Controller
             ], array_filter($address));
         }
 
-        $user->update($request->safe()->except(['address']));
+        $user->update($request->validated());
 
         return new UserResource($user->fresh(['address']));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

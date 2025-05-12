@@ -15,7 +15,7 @@ class AttributeController extends Controller
      */
     public function index()
     {
-        $attributes = Attribute::with(['translations', 'attributeOptions'])->get();
+        $attributes = Attribute::with(['translations', 'options'])->get();
 
         return AttributeResource::collection($attributes);
     }
@@ -29,14 +29,14 @@ class AttributeController extends Controller
 
         $attribute = Attribute::query()->create($data);
 
-        $attribute->load(['attributeOptions', 'translations']);
+        $attribute->load(['options', 'translations']);
 
         return new AttributeResource($attribute);
     }
 
     public function show(string $locale, Attribute $attribute): AttributeResource
     {
-        $attribute->load(['attributeOptions', 'translations']);
+        $attribute->load(['options', 'translations']);
 
         return new AttributeResource($attribute);
     }
@@ -50,7 +50,7 @@ class AttributeController extends Controller
 
         $attribute->update($data);
 
-        $attribute->load(['attributeOptions', 'translations']);
+        $attribute->load(['options', 'translations']);
 
         return new AttributeResource($attribute);
     }

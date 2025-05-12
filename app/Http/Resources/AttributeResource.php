@@ -20,7 +20,7 @@ class AttributeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'is_options_multiselect' => $this->is_options_multiselect,
-            'options' => AttributeOptionResource::collection($this->whenLoaded('attributeOptions')),
+            'options' => AttributeOptionResource::collection($this->whenLoaded('options')),
             'translations' => AttributeTranslationResource::collection($this->whenLoaded('translations')),
         ];
     }

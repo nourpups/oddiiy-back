@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Enum\AttributeOption;
+use App\Enum\AttributeId;
+use App\Models\AttributeOption;
 use App\Helper\SaleHelper;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\SkuVariant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,31 +23,31 @@ class   SkuResource extends JsonResource
         $discount = $this->getRelation('product_discount');
 
         // Вычисляем новую цену, если есть скидка
-        $discountData = null;
-        if ($discount) {
-            $discountData = [
-                ...SaleHelper::formatSale($discount, $this->price),
-                'starts_at' => $discount->starts_at,
-                'expires_at' => $discount->expires_at,
-            ];
-        }
+        $discountData = $discount ? [
+            ...SaleHelper::formatSale($discount, $this->price),
+            'starts_at' => $discount->starts_at,
+            'expires_at' => $discount->expires_at,
+        ] : null;
 
-        $attributeOptions = $this->whenLoaded('attributeOptions');
+        $variants = $this->whenLoaded('variants');
+        $attributeOptions = $variants->map(static function (SkuVariant $variant) {
+            return $variant->attributeOptions
+                ->flatten()
+                ->unique('attribute_id');
+        })->flatten();
 
-        $colors = null;
-        if ($attributeOptions) {
-            /** @var Collection $attributeOptions */
-            $colors = $attributeOptions
-                ->filter(fn ($option) => $option->attribute->id === AttributeOption::COLOR->value);
-        }
+        $colors = $attributeOptions->filter(static function (AttributeOption $option) {
+            return $option->attribute_id === AttributeId::COLOR->value;
+        });
+
         return [
             'id' => $this->id,
             'price' => $this->price,
             'sku' => $this->whenNotNull($this->sku),
-            'in_stock' => $this->in_stock,
             'discount' => $discountData,
+            'colors' => AttributeOptionResource::collection($colors),
             'attributeOptions' => AttributeOptionResource::collection($attributeOptions),
-            'colors' => AttributeOptionResource::collection($this->whenLoaded('attributeOptions', $colors)),
+            'variants' => SkuVariantResource::collection($variants),
             'images' => MediaResource::collection($this->whenLoaded('images')),
             'product' => new ProductResource($this->whenLoaded('product')),
         ];

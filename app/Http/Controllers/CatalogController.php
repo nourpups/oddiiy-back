@@ -20,7 +20,7 @@ class CatalogController extends Controller
         $collections = Collection::query()->get();
         $categories = Category::with('translations')->get();
         $products = Product::query()->with(['tag', 'allImages'])->get();
-        $attributes = Attribute::with('attributeOptions')->get();
+        $attributes = Attribute::with('options')->get();
 
         return [
             'collections' => (CollectionResource::collection($collections))
