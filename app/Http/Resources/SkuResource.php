@@ -8,6 +8,7 @@ use App\Helper\SaleHelper;
 use App\Models\SkuVariant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class   SkuResource extends JsonResource
 {
@@ -28,13 +29,12 @@ class   SkuResource extends JsonResource
             'starts_at' => $discount->starts_at,
             'expires_at' => $discount->expires_at,
         ] : null;
-
+        $id = $this->id;
         $variants = $this->whenLoaded('variants');
-        $attributeOptions = $variants->map(static function (SkuVariant $variant) {
+        $attributeOptions = $variants->map(static function (SkuVariant $variant) use ($id) {
             return $variant->attributeOptions
-                ->flatten()
-                ->unique('attribute_id');
-        })->flatten();
+                ->flatten();
+        })->flatten()->unique('id');
 
         $colors = $attributeOptions->filter(static function (AttributeOption $option) {
             return $option->attribute_id === AttributeId::COLOR->value;

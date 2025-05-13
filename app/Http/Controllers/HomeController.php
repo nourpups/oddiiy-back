@@ -27,7 +27,9 @@ class HomeController extends Controller
 
         $productResourceCollection = ProductResource::collection($products);
         $productResourceCollection->collection
-            = $productResourceCollection->collection->groupBy('tag.name');
+            = $productResourceCollection->collection
+            ->where('tag', '!==', null)
+            ->groupBy('tag.name');
 
         return [
             'collections' => (CollectionResource::collection($collections))

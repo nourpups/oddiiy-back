@@ -58,8 +58,14 @@ class MigrateAttributeOptionSkuData extends Command
                     // Формируем комбинацию атрибутов для текущего sku_id
                     $combination = [
                         'sku_id' => $skuId,
-                        'single_select' => $singleSelectOptions->pluck('attribute_option_id')->sort()->values()->toArray(),
-                        'multi_select' => $multiSelectOptions->pluck('attribute_option_id')->sort()->values()->toArray(),
+                        'single_select' => $singleSelectOptions->pluck('attribute_option_id')
+                            ->sort()
+                            ->values()
+                            ->toArray(),
+                        'multi_select' => $multiSelectOptions->pluck('attribute_option_id')
+                            ->sort()
+                            ->values()
+                            ->toArray(),
                     ];
                     $combinations[] = $combination;
                 }
@@ -119,25 +125,23 @@ class MigrateAttributeOptionSkuData extends Command
         // Берем первый sku_id из группы для создания записи в sku_variants
         $skuId = $combination['sku_ids'][0];
 
-        // Создаем запись в sku_variants
-        $skuVariant = SkuVariant::query()->create([
-            'sku_id' => $skuId,
-            'photomodel_id' => null,
-            'stock' => 0,
-        ]);
-
-        // Создаем записи в attribute_option_sku_variant для single select опций
-        foreach ($combination['single_select'] as $attributeOptionId) {
-            DB::table('attribute_option_sku_variant')->insert([
-                'sku_variant_id' => $skuVariant->id,
-                'attribute_option_id' => $attributeOptionId,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-
         // Создаем записи в attribute_option_sku_variant для multi select опций
         foreach ($combination['multi_select'] as $attributeOptionId) {
+            $skuVariant = SkuVariant::query()->create([
+                'sku_id' => $skuId,
+                'photomodel_id' => null,
+                'stock' => 0,
+            ]);
+            // Создаем записи в attribute_option_sku_variant для single select опций
+            foreach ($combination['single_select'] as $singleAttributeOptionId) {
+                DB::table('attribute_option_sku_variant')->insert([
+                    'sku_variant_id' => $skuVariant->id,
+                    'attribute_option_id' => $singleAttributeOptionId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
             DB::table('attribute_option_sku_variant')->insert([
                 'sku_variant_id' => $skuVariant->id,
                 'attribute_option_id' => $attributeOptionId,
