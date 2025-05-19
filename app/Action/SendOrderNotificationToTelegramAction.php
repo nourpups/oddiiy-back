@@ -17,7 +17,7 @@ class SendOrderNotificationToTelegramAction
             ->setTimezone('Asia/Tashkent')
             ->format('Y-m-d H:i');
 
-        $commentRow = "Izoh: $order->comment" ?? '';
+        $commentRow = $order->comment ? "Izoh: $order->comment" : '';
         $orderCoupon = $order->coupon_id ? $order->coupon : null;
 
         $subtotal = $order->items->reduce(
