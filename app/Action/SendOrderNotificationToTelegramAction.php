@@ -20,18 +20,18 @@ class SendOrderNotificationToTelegramAction
         $commentRow = "Izoh: $order->comment" ?? '';
         $orderCoupon = $order->coupon_id ? $order->coupon : null;
 
-        $couponRow = $orderCoupon ?
-            "Promo-kod: {$orderCoupon->code} -" . SaleHelper::formatSale(
-                $order->coupon,
-                $order->sum
-            )['amount'] . " so'm (" . $orderCoupon->value . ($orderCoupon->type->value === SaleType::PERCENTAGE->value ? "%" : "so'm") . ")"
-            : "";
-
-        $orderItemsText = $this->getOrderItemsText($order->items);
         $subtotal = $order->items->reduce(
             static fn(int $carry, OrderItem $item) => $carry + ($item->price * $item->quantity),
             0
         );
+        $couponRow = $orderCoupon ?
+            "Promo-kod: {$orderCoupon->code} -" . SaleHelper::formatSale(
+                $order->coupon,
+                $subtotal
+            )['amount'] . " so'm (" . $orderCoupon->value . ($orderCoupon->type->value === SaleType::PERCENTAGE->value ? "%" : "so'm") . ")"
+            : "";
+
+        $orderItemsText = $this->getOrderItemsText($order->items);
         $flatInfoRow = "";
         if ($order->address->entrance) {
             $flatInfoRow .= "Podyezd: {$order->address->entrance} ";
