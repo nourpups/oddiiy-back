@@ -16,8 +16,18 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'products' => ProductResource::collection($this->whenLoaded('products')),
-
+            'recipient_name' => $this->recipient_name,
+            'delivery' => $this->delivery->value,
+            'payment' => $this->payment->value,
+            'comment' => $this->whenNotNull('comment'),
+            'sum' => $this->sum,
+            'status' => $this->status->value,
+            'user' => new UserResource($this->whenLoaded('user')),
+            'coupon' => new CouponResource($this->whenLoaded('coupon')),
+            'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'created_at' => $this->created_at
+                ->setTimezone('Asia/Tashkent')
+                ->format('Y-m-d H:i'),
         ];
     }
 }

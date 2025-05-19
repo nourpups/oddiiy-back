@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Enum\AttributeId;
 use App\Models\AttributeOption;
 use App\Helper\SaleHelper;
+use App\Models\Sku;
 use App\Models\SkuVariant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,7 +22,7 @@ class   SkuResource extends JsonResource
     {
         // пока что считаем только скидку продукта, у самого Sku нет.
         // Получаем скидку из переданного product_discount
-        $discount = $this->getRelation('product_discount');
+        $discount = $this->isRelation('product_discount') ? $this->getRelation('product_discount') : null;
 
         // Вычисляем новую цену, если есть скидка
         $discountData = $discount ? [
@@ -29,9 +30,9 @@ class   SkuResource extends JsonResource
             'starts_at' => $discount->starts_at,
             'expires_at' => $discount->expires_at,
         ] : null;
-        $id = $this->id;
+
         $variants = $this->whenLoaded('variants');
-        $attributeOptions = $variants->map(static function (SkuVariant $variant) use ($id) {
+        $attributeOptions = $variants->map(static function (SkuVariant $variant) {
             return $variant->attributeOptions
                 ->flatten();
         })->flatten()->unique('id');

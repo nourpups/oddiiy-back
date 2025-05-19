@@ -16,16 +16,16 @@ trait AddressValidationRules
         $rwak = $requiredWithArrayKey;
         return [
             'formatted' => [$rwak ? "required_with:$rwak" : 'required', 'string'],
-            'region' => ['sometimes', 'string'],
-            'city'=> [$rwak ? "required_with:$rwak" : 'required', 'string'],
-            'district' => ['sometimes', 'string'],
-            'street' => [$rwak ? "required_with:$rwak" : 'required', 'string'],
-            'house' => [$rwak ? "required_with:$rwak" : 'required', 'string'],
-            'entrance' => ['sometimes', 'numeric'],
-            'floor' => ['sometimes', 'numeric'],
-            'apartment' => ['sometimes', 'string'],
-            'orientation' => ['sometimes', 'string'],
-            'postal' => ['sometimes', 'string'],
+            'region' => ['nullable', 'string'],
+            'city'=> [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
+            'district' => ['nullable', 'string'],
+            'street' => [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
+            'house' => [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
+            'entrance' => ['nullable', 'numeric'],
+            'floor' => ['nullable', 'numeric'],
+            'apartment' => ['nullable', 'string'],
+            'orientation' => ['nullable', 'string'],
+            'postal' => ['nullable', 'string'],
         ];
     }
 }

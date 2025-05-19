@@ -13,7 +13,6 @@ class Address extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'formatted',
         'region',
         'city',
@@ -37,8 +36,8 @@ class Address extends Model
         ];
     }
 
-    public function user(): BelongsTo
+    public function addressable(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 }

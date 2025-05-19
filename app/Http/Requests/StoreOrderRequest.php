@@ -2,46 +2,47 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\DeliveryType;
+use App\Enum\PaymentType;
 use App\Traits\Validation\AddressValidationRules;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class StoreOrderRequest extends FormRequest
 {
     use AddressValidationRules;
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'numerical', 'exists:users,id'],
+            'user_id' => ['required', 'numeric', 'exists:users,id'],
+            'coupon_id' => ['nullable', 'numeric', 'exists:coupons,id'],
+            'recipient_name' => ['required', 'string'],
+            'delivery' => ['required', Rule::enum(DeliveryType::class)],
+            'payment' => ['required', 'numeric', Rule::enum(PaymentType::class)],
 
             ...$this->prefixedAddressRules(),
 
-            'cart' => ['required', 'array'],
-            'cart.*.product_id' => ['required', 'exists:products,id'],
-            'cart.*.sku_id' => ['required', 'exists:skus,id'],
-            'cart.*.amount' => ['required', 'integer'],
-            'cart.*.quantity' => ['required', 'integer', 'min:1'],
+            'items' => ['required', 'array'],
+            'items.*.sku_id' => ['required', 'exists:skus,id'],
+            'items.*.sku_variant_id' => ['required', 'exists:sku_variants,id'],
+            'items.*.quantity' => ['required', 'integer'],
+            'items.*.price' => ['required', 'integer'],
 
-            'total_price' => ['required', 'integer', 'min:1'],
+            'sum' => ['required', 'integer'],
             'comment' => ['nullable', 'string']
         ];
     }
 
     private function prefixedAddressRules(): array
     {
-        return collect($this->addressRules('address'))
+        return collect($this->addressRules())
             ->mapWithKeys(fn($rule, $key) => ["address.$key" => $rule])
             ->toArray();
     }

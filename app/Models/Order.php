@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Enum\DeliveryType;
 use App\Enum\OrderStatus;
+use App\Enum\PaymentType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Order extends Model
 {
@@ -16,13 +20,19 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'coupon_id',
+        'recipient_name',
+        'delivery',
+        'payment',
         'sum',
+        'comment',
         'status',
     ];
 
     protected function casts(): array
     {
         return [
+            'delivery' => DeliveryType::class,
+            'payment' => PaymentType::class,
             'status' => OrderStatus::class,
         ];
     }
@@ -37,11 +47,25 @@ class Order extends Model
         return $this->belongsTo(Coupon::class);
     }
 
+    public function address(): MorphOne
+    {
+        return $this->morphOne(Address::class, 'addressable');
+    }
+
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class)
             ->as('details')
             ->withPivot(['quantity', 'amount'])
             ->withTimestamps();
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(
+            OrderItem::class,
+            'order_id',
+            'id'
+        );
     }
 }

@@ -5,7 +5,12 @@ return [
         'price' => "Bro... :min so'mdan arzon narx?",
         'stock' => "Bro... :min ta dan kam zaxira?",
     ],
-    'images' => "Хотя бы одна картинка бро...",
+    'images' => "Biiir dona rasm bo'lishi kerak kamida",
+    'coupon' => [
+        'code' => "Ko'rinmas siyohli promo-kodni 1-marta ko'rishim)",
+        'notFound' => "Promo-kod mavjud emas",
+        'invalid' => "Promo-kod endi yaroqsiz",
+    ],
 
-    'unknown' => "No'malum xatolik, «U»nga xabar berish kerak"
+    'unknown' => "No'malum xatolik, qaytadan urinib ko'ring yoki xatolik haqida xabar bering"
 ];

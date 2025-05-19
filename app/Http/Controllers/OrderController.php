@@ -2,46 +2,106 @@
 
 namespace App\Http\Controllers;
 
+use App\Action\SendOrderNotificationToTelegramAction;
+use App\Enum\OrderStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Http\Resources\OrderResource;
 use App\Models\Order;
-use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreOrderRequest $request)
+    public function index()
     {
-        $data = $request->validated();
-        dd($data);
-        $userId = $data['user_id'];
-        $user = User::query()->find($userId);
+        $orders = Order::load([
+            'address',
+            'items' => [
+                'sku',
+                'skuVariant'
+            ],
+            'user'
+        ])->get();
 
-        $address = $data['address'];
-        $cart = $data['cart'];
+        return OrderResource::collection($orders);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
-    {
-        //
+    public function store(
+        StoreOrderRequest $request,
+        SendOrderNotificationToTelegramAction $sendOrderNotificationToTelegramAction
+    ): OrderResource|JsonResponse {
+        $validated = $request->validated();
+
+        DB::beginTransaction();
+
+        try {
+            $order = Order::query()->create([
+                'user_id' => $validated['user_id'],
+                'coupon_id' => $validated['coupon_id'] ?? null,
+                'recipient_name' => $validated['recipient_name'],
+                'delivery' => $validated['delivery'],
+                'payment' => $validated['payment'],
+                'sum' => $validated['sum'],
+                'comment' => $validated['comment'] ?? null,
+                'status' => OrderStatus::PENDING,
+            ]);
+
+            $order->address()->create($validated['address']);
+            $order->items()->createMany($validated['items']);
+
+            DB::commit();
+
+            $order->load([
+                'address',
+                'items' => [
+                    'sku.product',
+                    'skuVariant'
+                ],
+                'user',
+                'coupon',
+            ]);
+
+            defer(static function () use ($order, $sendOrderNotificationToTelegramAction) {
+                $sendOrderNotificationToTelegramAction($order);
+            });
+
+            return new OrderResource($order);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Log::error("Ошибка при создании заказа: {$e->getMessage()}", [
+                'trace' => $e->getTrace(),
+            ]);
+
+            return response()->json([
+                'message' => __('messages.unknown')
+            ], 500);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    public function show(string $locale, Order $order): OrderResource
+    {
+        $order->load([
+            'address',
+            'items' => [
+                'sku.product',
+                'skuVariant'
+            ],
+            'user',
+            'coupon',
+        ]);
+
+        return new OrderResource($order);
+    }
+
     public function update(UpdateOrderRequest $request, Order $order)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Order $order)
     {
         //

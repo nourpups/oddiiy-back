@@ -11,7 +11,7 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'sku_id',
-        'variant_id',
+        'sku_variant_id',
         'quantity',
         'price'
     ];
@@ -21,13 +21,13 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function sku(): HasOne
+    public function sku(): BelongsTo
     {
-        return $this->hasOne(Sku::class);
+        return $this->belongsTo(Sku::class);
     }
 
-    public function skuVariant(): HasOne
+    public function skuVariant(): BelongsTo
     {
-        return $this->hasOne(SkuVariant::class);
+        return $this->belongsTo(SkuVariant::class);
     }
 }

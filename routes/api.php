@@ -41,11 +41,12 @@ Route::prefix('{locale}')->group(static function () {
     Route::apiResource('users', Controllers\UserController::class)->only(['update']);
     Route::apiResource('categories', Controllers\CategoryController::class)->only(['index']);
 
-    Route::post('/orders', [Controllers\OrderController::class, 'store']);
+    Route::resource('/orders', Controllers\OrderController::class);
     Route::prefix('/coupons')
         ->controller(Controllers\CouponController::class)
         ->group(static function () {
             Route::get('/first-order', 'firstOrder');
+            Route::post('/apply', 'apply');
         });
 
     Route::prefix('/admin')->as('admin.')->group(static function () {
