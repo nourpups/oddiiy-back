@@ -13,5 +13,5 @@ return [
         //'web' is optional if middleware is empty or null it will be added automatically
         'middleware' => null,
     ],
-    'multi_transaction' => true,
+    'multi_transaction' => false,
 ];

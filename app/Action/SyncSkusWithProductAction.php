@@ -24,6 +24,12 @@ class SyncSkusWithProductAction
             ->each(function (Sku $sku) {
                 $sku->attributeOptions()->detach();
                 $sku->variants()->delete(); // Удаляем варианты
+                $skuVariantIds = $sku->variants->pluck('id');
+
+                DB::table('attribute_option_sku_variant')
+                    ->whereIn('sku_variant_id', $skuVariantIds)
+                    ->delete();
+                $sku->variants()->delete();
                 $sku->discount()?->delete();
                 $sku->delete();
             });
@@ -43,8 +49,8 @@ class SyncSkusWithProductAction
             if ($skuData['combinations'] === RemoveKey::REMOVE->value) {
                 $skuVariantIds = $sku->variants->pluck('id');
 
-                DB::table('attribute_option_sku_attribute')
-                    ->whereIn('id', $skuVariantIds)
+                DB::table('attribute_option_sku_variant')
+                    ->whereIn('sku_variant_id', $skuVariantIds)
                     ->delete();
                 $sku->variants()->delete();
             } else {

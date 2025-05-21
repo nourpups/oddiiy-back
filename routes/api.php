@@ -63,5 +63,10 @@ Route::prefix('{locale}')->group(static function () {
             ->except(['index'])
             ->shallow();
         Route::apiResource('coupons', Admin\CouponController::class);
+        Route::apiResource('fonts', Admin\FontController::class)->only(['index', 'update']);
     });
 })->whereIn('locale', Locale::cases());
+
+Route::any('/handle/{paysys}', function ($paysys) {
+    (new Goodoneuz\PayUz\PayUz)->driver($paysys)->handle();
+});

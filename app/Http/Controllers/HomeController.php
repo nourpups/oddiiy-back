@@ -26,10 +26,15 @@ class HomeController extends Controller
         $products = Product::all();
 
         $productResourceCollection = ProductResource::collection($products);
-        $productResourceCollection->collection
-            = $productResourceCollection->collection
+
+        $discountedProducts = $productResourceCollection->collection->where('discount', '!==', null);
+        $groupedProducts = $productResourceCollection->collection
             ->where('tag', '!==', null)
             ->groupBy('tag.name');
+        // ищем продукты со скидкой отдельно, так как продукты со скидкой, могут не иметь тег Saleы
+        $groupedProducts['Sale'] = $discountedProducts;
+
+        $productResourceCollection->collection = $groupedProducts;
 
         return [
             'collections' => (CollectionResource::collection($collections))

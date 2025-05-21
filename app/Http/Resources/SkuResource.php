@@ -20,9 +20,12 @@ class   SkuResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+//        /** @var Sku $sku */
+//        $sku = Sku::find(1);
+
         // пока что считаем только скидку продукта, у самого Sku нет.
         // Получаем скидку из переданного product_discount
-        $discount = $this->isRelation('product_discount') ? $this->getRelation('product_discount') : null;
+        $discount = array_key_exists('product_discount', $this->getRelations()) ? $this->getRelation('product_discount') : null;
 
         // Вычисляем новую цену, если есть скидка
         $discountData = $discount ? [

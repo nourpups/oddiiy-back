@@ -1,3 +1,2 @@
 <?php
-    return \App\Models\User::find($key);
-
+    return \App\Models\Order::find($key);
