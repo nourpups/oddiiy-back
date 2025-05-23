@@ -9,18 +9,18 @@ use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
-        $orders = Order::load([
+        $orders = auth()->user()->orders()->with([
             'address',
             'items' => [
-                'sku',
+                'sku.product',
                 'skuVariant'
             ],
             'user'
@@ -64,9 +64,9 @@ class OrderController extends Controller
                 'coupon',
             ]);
 
-            defer(static function () use ($order, $sendOrderNotificationToTelegramAction) {
-                $sendOrderNotificationToTelegramAction($order);
-            });
+//            defer(static function () use ($order, $sendOrderNotificationToTelegramAction) {
+//                $sendOrderNotificationToTelegramAction($order);
+//            });
 
             return new OrderResource($order);
         } catch (\Throwable $e) {

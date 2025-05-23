@@ -14,6 +14,7 @@ Route::prefix('{locale}')->group(static function () {
         Route::get('/user', function (Request $request) {
             return new UserResource($request->user());
         });
+        Route::resource('/orders', Controllers\OrderController::class);
     });
 
     Route::prefix('/auth')->group(static function () {
@@ -41,7 +42,6 @@ Route::prefix('{locale}')->group(static function () {
     Route::apiResource('users', Controllers\UserController::class)->only(['update']);
     Route::apiResource('categories', Controllers\CategoryController::class)->only(['index']);
 
-    Route::resource('/orders', Controllers\OrderController::class);
     Route::prefix('/coupons')
         ->controller(Controllers\CouponController::class)
         ->group(static function () {

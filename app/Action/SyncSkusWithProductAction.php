@@ -8,6 +8,7 @@ use App\Models\Sku;
 use App\Models\SkuVariant;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SyncSkusWithProductAction
 {
@@ -69,6 +70,21 @@ class SyncSkusWithProductAction
                         $skuVariant->attributeOptions()->detach();
                         $skuVariant->delete();
                     });
+
+                // обновить stock
+                $existingSkuVariants = SkuVariant::query()
+                    ->whereIn('id', $existingSkuVariantIds)
+                    ->get();
+                $incomingSkuVariantExistingCombinations = $incomingCombinations
+                    ->where('id', "!=", 0)
+                    ->all();
+
+                $existingSkuVariants->each(static function (SkuVariant $skuVariant) use ($incomingSkuVariantExistingCombinations) {
+                    $incomingCombination = collect($incomingSkuVariantExistingCombinations)
+                        ->firstWhere('id', '==', $skuVariant->id);
+
+                    $skuVariant->update(['stock' => $incomingCombination['stock']]);
+                });
 
                 // создать новые варианты sku
                 $incomingCombinations

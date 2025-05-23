@@ -8,5 +8,4 @@ enum OrderStatus: int
     case ACCEPTED = 2;
     case DELIVERY = 3;
     case COMPLETED = 4;
-    case CANCELLED = 5;
 }
