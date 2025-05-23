@@ -17,7 +17,7 @@ class SkuVariantResource extends JsonResource
         return [
             'id' => $this->id,
             'options' => AttributeOptionResource::collection($this->whenLoaded('attributeOptions')),
-            'stock' => $this->stock ?: 808,
+            'stock' => $this->stock,
         ];
     }
 }

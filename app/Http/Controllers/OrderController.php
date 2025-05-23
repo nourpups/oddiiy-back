@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Action\AddItemsToOrder;
 use App\Action\SendOrderNotificationToTelegramAction;
 use App\Enum\OrderStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\Sku;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +35,8 @@ class OrderController extends Controller
 
     public function store(
         StoreOrderRequest $request,
-        SendOrderNotificationToTelegramAction $sendOrderNotificationToTelegramAction
+        SendOrderNotificationToTelegramAction $sendOrderNotificationToTelegramAction,
+        AddItemsToOrder $addItemsToOrder
     ): OrderResource|JsonResponse {
         $validated = $request->validated();
 
@@ -50,6 +55,22 @@ class OrderController extends Controller
             ]);
 
             $order->address()->create($validated['address']);
+
+            // добавлени элементов заказа в сам заказ
+            $data = $addItemsToOrder($validated['items']);
+            if (!$data['success']) {
+                $unavailableSkuIds = collect($data['unavailable_items'])
+                    ->pluck('sku_id')
+                    ->toArray();
+                $products = Product::query()->whereHas('skus', static function (Builder $q) use ($unavailableSkuIds) {
+                    $q->whereIn('id', $unavailableSkuIds);
+                })->get();
+                $productNames = $products->implode('name', ',');
+                return response()->json([
+                    'message' => __("orders.unavailableItems", ['products' => $productNames])
+                ], 400);
+            }
+
             $order->items()->createMany($validated['items']);
 
             DB::commit();

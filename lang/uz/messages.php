@@ -11,6 +11,9 @@ return [
         'notFound' => "Promo-kod mavjud emas",
         'invalid' => "Promo-kod endi yaroqsiz",
     ],
+    'order' => [
+        'unavailableItems' => "Tanlash imkoni bo'lmagan, quyidagi, mahsulot variantlari tanlandi: :products"
+    ],
 
     'unknown' => "No'malum xatolik, qaytadan urinib ko'ring yoki xatolik haqida xabar bering"
 ];
