@@ -20,6 +20,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'coupon_id',
+        'telegram_message_id',
         'recipient_name',
         'delivery',
         'payment',

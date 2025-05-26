@@ -22,6 +22,7 @@ class OrderResource extends JsonResource
             'comment' => $this->whenNotNull('comment'),
             'sum' => $this->sum,
             'status' => $this->status->value,
+            'address' => new AddressResource($this->whenLoaded('address')),
             'user' => new UserResource($this->whenLoaded('user')),
             'coupon' => new CouponResource($this->whenLoaded('coupon')),
             'items' => OrderItemResource::collection($this->whenLoaded('items')),

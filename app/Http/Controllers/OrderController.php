@@ -21,14 +21,20 @@ class OrderController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        $orders = auth()->user()->orders()->with([
-            'address',
-            'items' => [
-                'sku.product',
-                'skuVariant'
-            ],
-            'user'
-        ])->get();
+        $orders = auth()->user()
+            ->orders()
+            ->with([
+                'address',
+                'coupon',
+                'items' => [
+                    'sku.product',
+                    'skuVariant'
+                ],
+                'user'
+            ])
+            ->where('status', '!=', OrderStatus::CANCELLED->value)
+            ->latest()
+            ->get();
 
         return OrderResource::collection($orders);
     }
@@ -56,7 +62,7 @@ class OrderController extends Controller
 
             $order->address()->create($validated['address']);
 
-            // добавлени элементов заказа в сам заказ
+            // добавление элементов заказа в сам заказ
             $data = $addItemsToOrder($validated['items']);
             if (!$data['success']) {
                 $unavailableSkuIds = collect($data['unavailable_items'])
@@ -85,9 +91,9 @@ class OrderController extends Controller
                 'coupon',
             ]);
 
-//            defer(static function () use ($order, $sendOrderNotificationToTelegramAction) {
-//                $sendOrderNotificationToTelegramAction($order);
-//            });
+            defer(static function () use ($order, $sendOrderNotificationToTelegramAction) {
+                $sendOrderNotificationToTelegramAction($order);
+            });
 
             return new OrderResource($order);
         } catch (\Throwable $e) {
@@ -116,15 +122,5 @@ class OrderController extends Controller
         ]);
 
         return new OrderResource($order);
-    }
-
-    public function update(UpdateOrderRequest $request, Order $order)
-    {
-        //
-    }
-
-    public function destroy(Order $order)
-    {
-        //
     }
 }

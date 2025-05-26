@@ -6,6 +6,7 @@ use App\Enum\StreetType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Address extends Model
 {
@@ -36,7 +37,7 @@ class Address extends Model
         ];
     }
 
-    public function addressable(): BelongsTo
+    public function addressable(): MorphTo
     {
         return $this->morphTo();
     }

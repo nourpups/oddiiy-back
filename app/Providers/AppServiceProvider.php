@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Order;
+use App\Observers\OrderObserver;
+use App\Observers\TransactionObserver;
+use Goodoneuz\PayUz\Models\Transaction;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-//        \URL::forceScheme('http');
+        Order::observe(OrderObserver::class);
+        Transaction::observe(TransactionObserver::class);
     }
 }

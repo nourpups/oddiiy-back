@@ -28,7 +28,7 @@ return [
          *
          * For reference, see https://docs.defstudio.it/telegraph/webhooks/overview
          */
-        'handler' => DefStudio\Telegraph\Handlers\EmptyWebhookHandler::class,
+        'handler' => App\Telegram\Handler::class,
 
         /*
          * Middleware to be applied to the webhook route
@@ -41,7 +41,7 @@ return [
          *
          * For reference, see https://core.telegram.org/bots/api#using-a-local-bot-api-server
          */
-        // 'domain' => 'http://my.custom.domain',
+         'domain' => 'https://ghoul-crack-thoroughly.ngrok-free.app',
 
         /*
          * If enabled, unknown webhook commands are
@@ -101,7 +101,7 @@ return [
         /*
          * if enabled, store unknown chats as new TelegraphChat models
          */
-        'store_unknown_chats_in_db' => false,
+        'store_unknown_chats_in_db' => true,
     ],
 
     /*

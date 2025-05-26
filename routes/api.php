@@ -14,7 +14,7 @@ Route::prefix('{locale}')->group(static function () {
         Route::get('/user', function (Request $request) {
             return new UserResource($request->user());
         });
-        Route::resource('/orders', Controllers\OrderController::class);
+        Route::resource('/orders', Controllers\OrderController::class)->only(['index', 'store']);
     });
 
     Route::prefix('/auth')->group(static function () {
@@ -49,22 +49,24 @@ Route::prefix('{locale}')->group(static function () {
             Route::post('/apply', 'apply');
         });
 
-    Route::prefix('/admin')->as('admin.')->group(static function () {
-        Route::apiResource('products', Admin\ProductController::class)->scoped([
-            'product' => 'slug'
-        ]);
-        Route::apiResource('categories', Admin\CategoryController::class)->scoped([
-            'category' => 'slug'
-        ]);
-        Route::apiResource('collections', Admin\CollectionController::class);
-        Route::apiResource('tags', Controllers\TagController::class);
-        Route::apiResource('attributes', Admin\AttributeController::class)->except(['destroy']);
-        Route::apiResource('attributes.attribute-options', Admin\AttributeOptionController::class)
-            ->except(['index'])
-            ->shallow();
-        Route::apiResource('coupons', Admin\CouponController::class);
-        Route::apiResource('fonts', Admin\FontController::class)->only(['index', 'update']);
-    });
+    Route::prefix('/admin')->as('admin.')
+        ->middleware('auth:sanctum')
+        ->group(static function () {
+            Route::apiResource('products', Admin\ProductController::class)->scoped([
+                'product' => 'slug'
+            ]);
+            Route::apiResource('categories', Admin\CategoryController::class)->scoped([
+                'category' => 'slug'
+            ]);
+            Route::apiResource('collections', Admin\CollectionController::class);
+            Route::apiResource('tags', Controllers\TagController::class);
+            Route::apiResource('attributes', Admin\AttributeController::class)->except(['destroy']);
+            Route::apiResource('attributes.attribute-options', Admin\AttributeOptionController::class)
+                ->except(['index'])
+                ->shallow();
+            Route::apiResource('coupons', Admin\CouponController::class);
+            Route::apiResource('fonts', Admin\FontController::class)->only(['index', 'update']);
+        });
 })->whereIn('locale', Locale::cases());
 
 Route::any('/handle/{paysys}', function ($paysys) {
