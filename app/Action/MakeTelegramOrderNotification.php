@@ -26,14 +26,17 @@ class MakeTelegramOrderNotification
             static fn(int $carry, OrderItem $item) => $carry + ($item->price * $item->quantity),
             0
         );
-        $sale = SaleHelper::formatSale(
-            $order->coupon,
-            $subtotal
-        );
-        $couponSaleValue = $orderCoupon->type->value === SaleType::PERCENTAGE->value ? "({$orderCoupon->value}%)" : "";
-        $couponRow = $orderCoupon ?
-            "Promo-kod: {$orderCoupon->code} -" . $this->formatPrice($sale['amount']) . " " . $couponSaleValue
-            : "";
+        $couponRow = "";
+        if ($orderCoupon) {
+            $sale = SaleHelper::formatSale(
+                $order->coupon,
+                $subtotal
+            );
+            $couponSaleValue = $orderCoupon->type->value === SaleType::PERCENTAGE->value ? "({$orderCoupon->value}%)" : "";
+            $couponRow = "Promo-kod: {$orderCoupon->code} -" . $this->formatPrice(
+                    $sale['amount']
+                ) . " " . $couponSaleValue;
+        }
         $cashbackOptionRow = $orderCashbackOption ?
             "Keshbek hamyondan: -" . $this->formatPrice($orderCashbackOption->value)
             : "";
@@ -104,7 +107,9 @@ class MakeTelegramOrderNotification
 
             $itemInfoRow .= "Narxi: $priceDisplay";
 
-            $itemPriceRow = "{$this->formatPrice($orderItem->price)} ✖️ {$orderItem->quantity} 🟰 " . $this->formatPrice($orderItem->price * $orderItem->quantity);
+            $itemPriceRow = "{$this->formatPrice($orderItem->price)} ✖️ {$orderItem->quantity} 🟰 " . $this->formatPrice(
+                    $orderItem->price * $orderItem->quantity
+                );
 
             return "{$itemInfoRow}\n{$itemPriceRow}";
         })->implode("\n");
