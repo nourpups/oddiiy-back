@@ -49,6 +49,7 @@ Route::prefix('{locale}')->group(static function () {
             Route::get('/first-order', 'firstOrder');
             Route::post('/apply', 'apply');
         });
+    Route::apiResource('/admin/fonts', Admin\FontController::class)->only(['index', 'update']);
 
     Route::prefix('/admin')->as('admin.')
         ->middleware(['auth:sanctum', IsAdmin::class])
@@ -66,8 +67,9 @@ Route::prefix('{locale}')->group(static function () {
                 ->except(['index'])
                 ->shallow();
             Route::apiResource('coupons', Admin\CouponController::class);
-            Route::apiResource('fonts', Admin\FontController::class)->only(['index', 'update']);
-            Route::apiResource('cashback-options', Admin\CashbackWalletOptionsController::class)->only(['index']);
+            Route::apiResource('cashback-options', Admin\CashbackWalletOptionsController::class)
+                ->only(['index'])
+                ->withoutMiddleware(IsAdmin::class);
         });
 })->whereIn('locale', Locale::cases());
 
