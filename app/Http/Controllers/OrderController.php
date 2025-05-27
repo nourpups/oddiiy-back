@@ -6,11 +6,11 @@ use App\Action\AddItemsToOrder;
 use App\Action\SendOrderNotificationToTelegramAction;
 use App\Enum\OrderStatus;
 use App\Http\Requests\StoreOrderRequest;
-use App\Http\Requests\UpdateOrderRequest;
+use App\Models\CashbackWalletOption;
 use App\Http\Resources\OrderResource;
+use App\Models\CashbackWallet;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\Sku;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,7 +30,8 @@ class OrderController extends Controller
                     'sku.product',
                     'skuVariant'
                 ],
-                'user'
+                'user',
+                'cashbackWalletOption'
             ])
             ->where('status', '!=', OrderStatus::CANCELLED->value)
             ->latest()
@@ -52,6 +53,7 @@ class OrderController extends Controller
             $order = Order::query()->create([
                 'user_id' => $validated['user_id'],
                 'coupon_id' => $validated['coupon_id'] ?? null,
+                'cashback_wallet_option_id' => $validated['cashback_wallet_option_id'] ?? null,
                 'recipient_name' => $validated['recipient_name'],
                 'delivery' => $validated['delivery'],
                 'payment' => $validated['payment'],
@@ -59,6 +61,31 @@ class OrderController extends Controller
                 'comment' => $validated['comment'] ?? null,
                 'status' => OrderStatus::PENDING,
             ]);
+
+            if ($order->sum >= 500_000) {
+                $userCashbackWallet = CashbackWallet::query()->where('user_id', $order->user_id)->first();
+                $option = CashbackWalletOption::query()->find($validated['cashback_wallet_option_id']);
+                $userCashbackWallet->update([
+                    'balance' => $userCashbackWallet->balance + $order->sum / 100 * 2, // 2%
+                    'total_earned' => $userCashbackWallet->total_earned + $option->value,
+                ]);
+            }
+
+            if (!is_null($validated['cashback_wallet_option_id'])) {
+                $userCashbackWallet = CashbackWallet::query()->where('user_id', $order->user_id)->first();
+                $option = CashbackWalletOption::query()->find($validated['cashback_wallet_option_id']);
+
+                if ($userCashbackWallet->balance < $option->value) {
+                    return response()->json([
+                        'message' => __('messages.invalidCashbackApplyAmount')
+                    ], 400);
+                }
+
+                $userCashbackWallet->update([
+                    'balance' => $userCashbackWallet->balance - $option->value,
+                    'total_used' => $userCashbackWallet->total_earned + $option->value,
+                ]);
+            }
 
             $order->address()->create($validated['address']);
 
@@ -83,6 +110,7 @@ class OrderController extends Controller
 
             $order->load([
                 'address',
+                'cashbackWalletOption',
                 'items' => [
                     'sku.product',
                     'skuVariant'
@@ -113,6 +141,7 @@ class OrderController extends Controller
     {
         $order->load([
             'address',
+            'cashbackWalletOption',
             'items' => [
                 'sku.product',
                 'skuVariant'

@@ -6,6 +6,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Resources\UserResource;
+use App\Models\CashbackWallet;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,13 +49,14 @@ class AuthController extends Controller
         $data = $request->validated();
 
         $user = User::query()->create($data);
+        CashbackWallet::query()->create(['user_id' => $user->id]);
 
         $token = $user->createToken($user->name);
 
         Auth::login($user);
 
         return [
-            'user' => new UserResource($user),
+            'user' => new UserResource($user->fresh()),
             'token' => $token->plainTextToken,
         ];
     }

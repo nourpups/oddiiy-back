@@ -145,15 +145,15 @@ class ProductController extends Controller
         $product->load('skus');
 
         return DB::transaction(static function () use ($product) {
-            $skuIds = $product->skus->pluck('id');
-
-            DB::table('attribute_option_sku')->whereIn('sku_id', $skuIds)->delete();
-            Discount::query()->whereIn('discountable_id', $skuIds)->delete();
-            SkuVariant::query()->whereIn('sku_id', $skuIds)->delete();
-            Sku::query()->whereIn('id', $skuIds)->delete();
-
-            DB::table('collection_product')->where('product_id', $product->id)->delete();
-            ProductTranslation::query()->where('product_id', $product->id)->delete();
+//            $skuIds = $product->skus->pluck('id');
+//             продумать whereNull('deleted_at', null)
+//            DB::table('attribute_option_sku')->whereIn('sku_id', $skuIds)->delete();
+//            Discount::query()->whereIn('discountable_id', $skuIds)->delete();
+//            SkuVariant::query()->whereIn('sku_id', $skuIds)->delete();
+//            Sku::query()->whereIn('id', $skuIds)->delete();
+//
+//            DB::table('collection_product')->where('product_id', $product->id)->delete();
+//            ProductTranslation::query()->where('product_id', $product->id)->delete();
 
             $product->delete();
 

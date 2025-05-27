@@ -66,6 +66,7 @@ Route::prefix('{locale}')->group(static function () {
                 ->shallow();
             Route::apiResource('coupons', Admin\CouponController::class);
             Route::apiResource('fonts', Admin\FontController::class)->only(['index', 'update']);
+            Route::apiResource('cashback-options', Admin\CashbackWalletOptionsController::class)->only(['index']);
         });
 })->whereIn('locale', Locale::cases());
 

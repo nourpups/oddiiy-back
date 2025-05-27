@@ -28,6 +28,7 @@ class OrderObserver implements  ShouldHandleEventsAfterCommit
             // Загружаем необходимые связи для формирования сообщения
             $order->load([
                 'address',
+                'cashbackWalletOption',
                 'coupon',
                 'items' => [
                     'sku.product',

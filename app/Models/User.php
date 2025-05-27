@@ -22,6 +22,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'is_admin',
         'name',
         'phone',
         'password',
@@ -39,11 +40,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $with = ['address'];
+    protected $with = ['address', 'cashbackWallet'];
 
     protected function casts(): array
     {
         return [
+            'is_admin' => 'boolean',
             'password' => 'hashed',
             'birth_date' => 'date',
         ];
@@ -57,5 +59,10 @@ class User extends Authenticatable
     public function address(): MorphOne
     {
         return $this->morphOne(Address::class, 'addressable');
+    }
+
+    public function cashbackWallet(): HasOne
+    {
+        return $this->hasOne(CashbackWallet::class);
     }
 }

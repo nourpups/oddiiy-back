@@ -26,6 +26,7 @@ class OrderResource extends JsonResource
             'user' => new UserResource($this->whenLoaded('user')),
             'coupon' => new CouponResource($this->whenLoaded('coupon')),
             'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'cashback_wallet_option' => new CashbackWalletOptionResource($this->whenLoaded('cashbackWalletOption')),
             'created_at' => $this->created_at
                 ->setTimezone('Asia/Tashkent')
                 ->format('Y-m-d H:i'),

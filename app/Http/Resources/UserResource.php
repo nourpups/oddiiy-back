@@ -16,10 +16,12 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'is_admin' => $this->is_admin,
             'name' => $this->name,
             'phone' => $this->phone,
             'birth_date' => $this->whenNotNull($this->birth_date->format('Y-m-d')),
 //            'remember_token' =>$this->whenNotNull($this->remember_token),
+            'cashback_wallet' => new CashbackWalletResource($this->whenLoaded('cashbackWallet')),
             'address' => new AddressResource($this->whenLoaded('address')),
         ];
     }

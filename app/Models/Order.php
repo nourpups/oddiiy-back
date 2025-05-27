@@ -8,7 +8,6 @@ use App\Enum\PaymentType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
@@ -21,6 +20,7 @@ class Order extends Model
         'user_id',
         'coupon_id',
         'telegram_message_id',
+        'cashback_wallet_option_id',
         'recipient_name',
         'delivery',
         'payment',
@@ -53,14 +53,6 @@ class Order extends Model
         return $this->morphOne(Address::class, 'addressable');
     }
 
-    public function products(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class)
-            ->as('details')
-            ->withPivot(['quantity', 'amount'])
-            ->withTimestamps();
-    }
-
     public function items(): HasMany
     {
         return $this->hasMany(
@@ -68,5 +60,10 @@ class Order extends Model
             'order_id',
             'id'
         );
+    }
+
+    public function cashbackWalletOption(): BelongsTo
+    {
+        return $this->belongsTo(CashbackWalletOption::class);
     }
 }

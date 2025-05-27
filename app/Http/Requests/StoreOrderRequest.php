@@ -23,6 +23,7 @@ class StoreOrderRequest extends FormRequest
         return [
             'user_id' => ['required', 'numeric', 'exists:users,id'],
             'coupon_id' => ['nullable', 'numeric', 'exists:coupons,id'],
+            'cashback_wallet_option_id' => ['nullable', 'numeric', 'exists:cashback_wallet_options,id'],
             'recipient_name' => ['required', 'string'],
             'delivery' => ['required', Rule::enum(DeliveryType::class)],
             'payment' => ['required', 'numeric', Rule::enum(PaymentType::class)],

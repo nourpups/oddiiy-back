@@ -20,6 +20,7 @@ class MakeTelegramOrderNotification
 
         $commentRow = $order->comment ? "Izoh: $order->comment\n" : '';
         $orderCoupon = $order->coupon_id ? $order->coupon : null;
+        $orderCashbackOption = $order->cashback_wallet_option_id ? $order->cashbackWalletOption : null;
 
         $subtotal = $order->items->reduce(
             static fn(int $carry, OrderItem $item) => $carry + ($item->price * $item->quantity),
@@ -32,6 +33,9 @@ class MakeTelegramOrderNotification
         $couponSaleValue = $orderCoupon->type->value === SaleType::PERCENTAGE->value ? "({$orderCoupon->value}%)" : "";
         $couponRow = $orderCoupon ?
             "Promo-kod: {$orderCoupon->code} -" . $this->formatPrice($sale['amount']) . " " . $couponSaleValue
+            : "";
+        $cashbackOptionRow = $orderCashbackOption ?
+            "Keshbek hamyondan: -" . $this->formatPrice($orderCashbackOption->value)
             : "";
 
         $orderItemsText = $this->getOrderItemsText($order->items);
@@ -67,6 +71,7 @@ class MakeTelegramOrderNotification
             . "Yetkazib berish turi: {$order->delivery->getLabel()}\n"
             . "Summa: {$this->formatPrice($subtotal)}\n"
             . "{$couponRow}\n"
+            . "{$cashbackOptionRow}\n"
             . "Yakuniy summa: {$this->formatPrice($order->sum)}\n\n"
             . "{$commentRow}";
     }
