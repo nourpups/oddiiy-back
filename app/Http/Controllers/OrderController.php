@@ -64,10 +64,9 @@ class OrderController extends Controller
 
             if ($order->sum >= 500_000) {
                 $userCashbackWallet = CashbackWallet::query()->where('user_id', $order->user_id)->first();
-                $option = CashbackWalletOption::query()->find($validated['cashback_wallet_option_id']);
                 $userCashbackWallet->update([
                     'balance' => $userCashbackWallet->balance + $order->sum / 100 * 2, // 2%
-                    'total_earned' => $userCashbackWallet->total_earned + $option->value,
+                    'total_earned' => $userCashbackWallet->total_earned + $order->sum / 100 * 2,
                 ]);
             }
 

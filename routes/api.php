@@ -3,6 +3,7 @@
 use App\Enum\Locale;
 use App\Http\Controllers;
 use App\Http\Controllers\Admin;
+use App\Http\Middleware\IsAdmin;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,7 +51,7 @@ Route::prefix('{locale}')->group(static function () {
         });
 
     Route::prefix('/admin')->as('admin.')
-        ->middleware('auth:sanctum')
+        ->middleware(['auth:sanctum', IsAdmin::class])
         ->group(static function () {
             Route::apiResource('products', Admin\ProductController::class)->scoped([
                 'product' => 'slug'

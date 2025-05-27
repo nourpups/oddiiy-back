@@ -41,7 +41,7 @@ return [
          *
          * For reference, see https://core.telegram.org/bots/api#using-a-local-bot-api-server
          */
-         'domain' => 'https://ghoul-crack-thoroughly.ngrok-free.app',
+         'domain' => env('TG_BOT_WEBHOOK_URL'),
 
         /*
          * If enabled, unknown webhook commands are
