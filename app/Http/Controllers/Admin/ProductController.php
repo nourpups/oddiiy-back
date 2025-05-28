@@ -20,6 +20,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -39,6 +40,7 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         return DB::transaction(static function () use ($request) {
+            Log::info('creating product', $request->validated());
             $translations = $request->validated(['translations']);
             foreach ($translations as $locale => $translationArray) {
                 $name = $translationArray['name'];
@@ -88,6 +90,7 @@ class ProductController extends Controller
                 }
             }
 
+            Log::info('product created', $product->toArray());
             return new ProductResource($product);
         });
     }
@@ -101,6 +104,9 @@ class ProductController extends Controller
     {
         return DB::transaction(static function () use ($request, $product) {
             $validated = $request->validated();
+
+            Log::info('updating product', $validated);
+
             $translations = $request->validated(['translations']);
 
             foreach ($translations as $locale => $translationArray) {
@@ -136,7 +142,10 @@ class ProductController extends Controller
             // SKU
             (new SyncSkusWithProductAction())($product, $validated['skus']);
 
-            return new ProductResource($product->fresh());
+            $product->refresh();
+
+            Log::info('product updated', $product->toArray());
+            return new ProductResource($product);
         });
     }
 

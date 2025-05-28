@@ -25,7 +25,8 @@ class SmsVerficationController extends Controller
         try {
             $otp = mt_rand(100000, 999999);
             $message = sprintf(EskizText::CONFIRM_ORDER->getText(), $otp);
-            $eskizService->sendSms($phone, $message);
+
+            defer(static fn () => $eskizService->sendSms($phone, $message));
 
             Cache::forget("otp_$phone");
             Cache::put("otp_$phone", $otp);
@@ -63,7 +64,7 @@ class SmsVerficationController extends Controller
             $otp = mt_rand(100000, 999999);
             $message = sprintf(EskizText::REGISTER->getText(), $otp);
 
-            $eskizService->sendSms($phone, $message);
+            defer(static fn () => $eskizService->sendSms($phone, $message));
 
             Cache::forget("otp_$phone");
             Cache::put("otp_$phone", $otp);
@@ -99,7 +100,8 @@ class SmsVerficationController extends Controller
         try {
             $otp = mt_rand(100000, 999999);
             $message = sprintf(EskizText::RESET_PASSWORD->getText(), $otp);
-            $eskizService->sendSms($phone, $message);
+
+            defer(static fn () => $eskizService->sendSms($phone, $message));
 
             Cache::forget("otp_$phone");
             Cache::put("otp_$phone", $otp);

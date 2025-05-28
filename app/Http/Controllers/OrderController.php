@@ -46,6 +46,7 @@ class OrderController extends Controller
         AddItemsToOrder $addItemsToOrder
     ): OrderResource|JsonResponse {
         $validated = $request->validated();
+        Log::info('creating order', $validated);
 
         DB::beginTransaction();
 
@@ -114,6 +115,7 @@ class OrderController extends Controller
                 $sendOrderNotificationToTelegramAction($order);
             });
 
+            Log::info('order created', $order);
             return new OrderResource($order);
         } catch (\Throwable $e) {
             DB::rollBack();
