@@ -41,8 +41,8 @@ class UpdateProductRequest extends FormRequest
             'discount' => ['sometimes', new RemovedOr('array')],
             'discount.value' => ['present_if:discount,array', 'integer'],
             'discount.type' => ['present_if:discount,array', Rule::enum(SaleType::class)],
-            'discount.starts_at' => ['sometimes', new RemovedOr(), 'date'],
-            'discount.expires_at' => ['sometimes', new RemovedOr(), 'date', 'after:discount.starts_at'],
+            'discount.starts_at' => ['sometimes', new RemovedOr(['date']), ],
+            'discount.expires_at' => ['sometimes', new RemovedOr(['date', 'after:discount.starts_at'])],
 
             'skus.*.id' => ['sometimes', 'numeric', 'exists:skus,id'],
             'skus.*.price' => ['required', 'numeric', 'min:1000'],
