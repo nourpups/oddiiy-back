@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Action\SendOrderNotificationToTelegramAction;
 use App\Enum\OrderStatus;
+use App\Models\CashbackWallet;
 use App\Models\Order;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
@@ -38,6 +39,17 @@ class OrderObserver implements  ShouldHandleEventsAfterCommit
             ]);
 
             ($this->sendOrderNotificationToTelegramAction)($order);
+        }
+
+        // начисляем кэшбэк при удовлетворитльной сумме заказа
+        if ($order->isDirty('status') && $order->status === OrderStatus::ACCEPTED) {
+            if ($order->sum >= 500_000) {
+                $userCashbackWallet = CashbackWallet::query()->where('user_id', $order->user_id)->first();
+                $userCashbackWallet->update([
+                    'balance' => $userCashbackWallet->balance + $order->sum / 100 * 2, // 2%
+                    'total_earned' => $userCashbackWallet->total_earned + $order->sum / 100 * 2,
+                ]);
+            }
         }
     }
 

@@ -62,14 +62,6 @@ class OrderController extends Controller
                 'status' => OrderStatus::PENDING,
             ]);
 
-            if ($order->sum >= 500_000) {
-                $userCashbackWallet = CashbackWallet::query()->where('user_id', $order->user_id)->first();
-                $userCashbackWallet->update([
-                    'balance' => $userCashbackWallet->balance + $order->sum / 100 * 2, // 2%
-                    'total_earned' => $userCashbackWallet->total_earned + $order->sum / 100 * 2,
-                ]);
-            }
-
             if (!is_null($validated['cashback_wallet_option_id'])) {
                 $userCashbackWallet = CashbackWallet::query()->where('user_id', $order->user_id)->first();
                 $option = CashbackWalletOption::query()->find($validated['cashback_wallet_option_id']);
