@@ -12,7 +12,7 @@ return [
         'invalid' => "Promo-kod endi yaroqsiz",
     ],
     'order' => [
-        'unavailableItems' => "Tanlash imkoni bo'lmagan, quyidagi, mahsulot variantlari tanlandi: :products",
+        'unavailableItems' => "Tanlash imkoni bo'lmagan , quyidagi, mahsulot variantlari (joriy zaxiradan ortiq miqdor) tanlandi: :products",
         'invalidCashbackApplyAmount' => "Qo'llanilayotgan keshbek summasi, balansdan ko'proq bo'lishi mumkin emas"
     ],
 

@@ -92,7 +92,7 @@ class OrderController extends Controller
                 })->get();
                 $productNames = $products->implode('name', ',');
                 return response()->json([
-                    'message' => __("orders.unavailableItems", ['products' => $productNames])
+                    'message' => __("messages.order.unavailableItems", ['products' => $productNames])
                 ], 400);
             }
 
