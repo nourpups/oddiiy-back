@@ -79,7 +79,13 @@ class OrderController extends Controller
                 ]);
             }
 
-            $order->address()->create($validated['address']);
+            // @todo сделать норм логику отправления адреса во фронте
+            $order->address()->create([
+                ...$validated['address'],
+                !empty($validated['address']['house'])
+                    ? $validated['address']['house']
+                    : ""
+            ]);
 
             // добавление элементов заказа в сам заказ
             $data = $addItemsToOrder($validated['items']);
@@ -115,7 +121,7 @@ class OrderController extends Controller
                 $sendOrderNotificationToTelegramAction($order);
             });
 
-            Log::info('order created', $order);
+            Log::info('order created', $order->toArray());
             return new OrderResource($order);
         } catch (\Throwable $e) {
             DB::rollBack();
