@@ -96,6 +96,9 @@ class MakeTelegramOrderNotification
                 ) . ")\n"
                 : "{$sku->product->name} ";
 
+            $stock = $sku->stock ?: $skuVariant->stock;
+            $itemInfoRow .= "Zaxira: $stock";
+
             // Check if the product has a discount to show the original price in <del>
             $originalPrice = $skuVariant ? $skuVariant->sku->price : $sku->price;
             $hasDiscount = $skuVariant ? !is_null($skuVariant->sku->product->discount) : !is_null(
