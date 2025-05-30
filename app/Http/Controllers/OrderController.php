@@ -84,7 +84,7 @@ class OrderController extends Controller
                 ...$validated['address'],
                 !empty($validated['address']['house'])
                     ? $validated['address']['house']
-                    : ""
+                    : "pusto"
             ]);
 
             // добавление элементов заказа в сам заказ
