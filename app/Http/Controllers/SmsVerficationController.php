@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Action\SendOtpMessageAction;
 use App\Enum\EskizText;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -9,12 +10,15 @@ use App\Services\Eskiz;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class SmsVerficationController extends Controller
 {
-    public function sendOtp(Request $request, Eskiz $eskizService): JsonResponse
+    public function __construct(protected SendOtpMessageAction $sendOtpMessageAction)
+    {
+    }
+
+    public function sendOtp(Request $request): JsonResponse
     {
         $data = $request->validate([
             'phone' => ['required', 'phone'],
@@ -23,13 +27,7 @@ class SmsVerficationController extends Controller
         $phone = $data['phone'];
 
         try {
-            $otp = mt_rand(100000, 999999);
-            $message = sprintf(EskizText::CONFIRM_ORDER->getText(), $otp);
-
-            defer(static fn () => $eskizService->sendSms($phone, $message));
-
-            Cache::forget("otp_$phone");
-            Cache::put("otp_$phone", $otp);
+            ($this->sendOtpMessageAction)($phone);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -43,7 +41,7 @@ class SmsVerficationController extends Controller
     }
 
 
-    public function sendRegisterOtp(Request $request, Eskiz $eskizService): JsonResponse
+    public function sendRegisterOtp(Request $request): JsonResponse
     {
         $validator = Validator::make(
             data: $request->all(),
@@ -61,13 +59,7 @@ class SmsVerficationController extends Controller
         $phone = $validator->validated()['phone'];
 
         try {
-            $otp = mt_rand(100000, 999999);
-            $message = sprintf(EskizText::REGISTER->getText(), $otp);
-
-            defer(static fn () => $eskizService->sendSms($phone, $message));
-
-            Cache::forget("otp_$phone");
-            Cache::put("otp_$phone", $otp);
+            ($this->sendOtpMessageAction)($phone);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -80,7 +72,7 @@ class SmsVerficationController extends Controller
         ]);
     }
 
-    public function sendLoginOtp(Request $request, Eskiz $eskizService): UserResource|JsonResponse
+    public function sendLoginOtp(Request $request): UserResource|JsonResponse
     {
         $validator = Validator::make(
             data: $request->all(),
@@ -98,13 +90,7 @@ class SmsVerficationController extends Controller
         $phone = $validator->validated()['phone'];
 
         try {
-            $otp = mt_rand(100000, 999999);
-            $message = sprintf(EskizText::RESET_PASSWORD->getText(), $otp);
-
-            defer(static fn () => $eskizService->sendSms($phone, $message));
-
-            Cache::forget("otp_$phone");
-            Cache::put("otp_$phone", $otp);
+            ($this->sendOtpMessageAction)($phone);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,

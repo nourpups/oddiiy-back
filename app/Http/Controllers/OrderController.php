@@ -82,7 +82,7 @@ class OrderController extends Controller
             // @todo сделать норм логику отправления адреса во фронте
             $order->address()->create([
                 ...$validated['address'],
-                !empty($validated['address']['house'])
+                "house" => !empty($validated['address']['house'])
                     ? $validated['address']['house']
                     : "pusto"
             ]);
