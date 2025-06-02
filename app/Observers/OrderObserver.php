@@ -6,6 +6,9 @@ use App\Action\SendOrderNotificationToTelegramAction;
 use App\Enum\OrderStatus;
 use App\Models\CashbackWallet;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Sku;
+use App\Models\SkuVariant;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
 class OrderObserver implements  ShouldHandleEventsAfterCommit
@@ -50,6 +53,24 @@ class OrderObserver implements  ShouldHandleEventsAfterCommit
                     'total_earned' => $userCashbackWallet->total_earned + $order->sum / 100 * 2,
                 ]);
             }
+        }
+
+        // возвращаем зарезервированные товары обратно в запас
+        if ($order->isDirty('status') && $order->status === OrderStatus::CANCELLED) {
+            $order->load('items.skuVariant');
+            $order->items->each(static function (OrderItem $orderItem) {
+                $skuId = $orderItem['sku_id'];
+                $skuVariantId = $orderItem['sku_variant_id'];
+                $quantity = $orderItem['quantity'];
+
+                if ($skuVariantId) {
+                    $skuVariant = SkuVariant::find($skuVariantId);
+                    $skuVariant->increment('stock', $quantity);
+                } else {
+                    $sku = Sku::find($skuId);
+                    $sku->increment('stock', $quantity);
+                }
+            });
         }
     }
 
