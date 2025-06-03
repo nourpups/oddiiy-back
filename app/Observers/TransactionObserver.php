@@ -19,9 +19,8 @@ class TransactionObserver
 
     public function updated(Transaction $transaction): void
     {
-        Log::info('xoba', $transaction->toArray());
         // Проверяем, изменился ли статус транзакции
-        if ($transaction->isDirty('state') &&
+        if ($transaction->wasChanged('state') &&
             $transaction->state !== Transaction::STATE_CREATED) {
             Log::info(sprintf(
                 "Транзакция с ID %d (%s) переходит в статус %d",

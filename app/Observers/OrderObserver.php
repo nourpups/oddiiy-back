@@ -10,6 +10,7 @@ use App\Models\OrderItem;
 use App\Models\Sku;
 use App\Models\SkuVariant;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
+use Illuminate\Support\Facades\Log;
 
 class OrderObserver implements  ShouldHandleEventsAfterCommit
 {
@@ -28,7 +29,7 @@ class OrderObserver implements  ShouldHandleEventsAfterCommit
     public function updated(Order $order): void
     {
         // Проверяем, изменилось ли поле status
-        if ($order->isDirty('status') && $order->status !== OrderStatus::PENDING) {
+        if ($order->wasChanged('status') && $order->status !== OrderStatus::PENDING) {
             // Загружаем необходимые связи для формирования сообщения
             $order->load([
                 'address',
@@ -44,19 +45,28 @@ class OrderObserver implements  ShouldHandleEventsAfterCommit
             ($this->sendOrderNotificationToTelegramAction)($order);
         }
 
-        // начисляем кэшбэк при удовлетворитльной сумме заказа
-        if ($order->isDirty('status') && $order->status === OrderStatus::ACCEPTED) {
-            if ($order->sum >= 500_000) {
+        try {
+            Log::info('es kontak', [
+                't' => $order->wasChanged('status'),
+                'x' =>  $order->status === OrderStatus::ACCEPTED,
+                'd' => $order->status
+            ]);
+        // начисляем кэшбэк при оплате заказа
+            if ($order->wasChanged('status') && $order->status === OrderStatus::ACCEPTED) {
                 $userCashbackWallet = CashbackWallet::query()->where('user_id', $order->user_id)->first();
+                Log::info("cashback wallet user_id = {$order->user_id}", ['w' => $userCashbackWallet]);
                 $userCashbackWallet->update([
                     'balance' => $userCashbackWallet->balance + $order->sum / 100 * 2, // 2%
                     'total_earned' => $userCashbackWallet->total_earned + $order->sum / 100 * 2,
                 ]);
+                Log::info("cashback wallet user_id = {$order->user_id} updated", ['w' => $userCashbackWallet->fresh()]);
             }
+        } catch (\Throwable $e) {
+            Log::error("pizda {$e->getMessage()}", ['trace' => $e->getTrace()]);
         }
 
         // возвращаем зарезервированные товары обратно в запас
-        if ($order->isDirty('status') && $order->status === OrderStatus::CANCELLED) {
+        if ($order->wasChanged('status') && $order->status === OrderStatus::CANCELLED) {
             $order->load('items.skuVariant');
             $order->items->each(static function (OrderItem $orderItem) {
                 $skuId = $orderItem['sku_id'];
