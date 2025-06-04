@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
@@ -20,7 +21,9 @@ class ProductController extends Controller
 
     public function recommended(): AnonymousResourceCollection
     {
-        $recommendedProducts = Product::query()->get()->random(4);
+        $recommendedProducts = Cache::remember('recommended_products', 5 * 60, function () {
+            return Product::query()->get()->random(4);
+        });;
 
         return ProductResource::collection($recommendedProducts);
     }

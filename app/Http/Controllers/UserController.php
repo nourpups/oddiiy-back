@@ -15,10 +15,11 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, string $locale, User $user): UserResource
     {
         $address = $request->validated('address');
+        $address["house"] = !empty($address["house"]) ? $address["house"] : "pusto";
 
         if (isset($address)) {
             $user->address()->updateOrCreate([
-               'user_id' => $user->id,
+               'addressable_id' => $user->id,
             ], array_filter($address));
         }
 

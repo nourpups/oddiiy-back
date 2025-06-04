@@ -31,6 +31,22 @@ services:
       - od-app
       - od-net
 
+  app-scheduler:
+    container_name: od_app_scheduler
+    user: 1000:1000
+    build:
+      dockerfile: ./docker/php/Dockerfile
+    volumes:
+      - ${PROJECT_PATH}:/var/www/${PROJECT_NAME}
+      - ${PROJECT_PATH}/storage:/var/www/${PROJECT_NAME}/storage
+    depends_on:
+      - db
+    networks:
+      - od-app
+      - od-net
+    command: php artisan schedule:work
+    restart: always
+
   db:
     container_name: od_db
     image: mysql:8

@@ -2,7 +2,6 @@
 
 namespace App\Action;
 
-use App\Enum\OrderStatus;
 use App\Enum\SaleType;
 use App\Helper\SaleHelper;
 use App\Models\Order;
@@ -43,23 +42,27 @@ class MakeTelegramOrderNotification
 
         $orderItemsText = $this->getOrderItemsText($order->items);
         $flatInfoRow = "";
-        if ($order->address->entrance) {
+        if ($order->address?->entrance) {
             $flatInfoRow .= "Podyezd: {$order->address->entrance} ";
         }
 
-        if ($order->address->floor) {
+        if ($order->address?->floor) {
             $flatInfoRow .= "Qavat: {$order->address->floor} ";
         }
 
-        if ($order->address->apartment) {
+        if ($order->address?->apartment) {
             $flatInfoRow .= "Xonadon: {$order->address->apartment} ";
         }
 
-        if ($order->address->orientation) {
+        if ($order->address?->orientation) {
             $flatInfoRow .= "Mo'ljal: {$order->address->orientation} ";
         }
 
         $status = $order->status->getLabel();
+        $addressLink = $this->makeLinkFromCoords(
+            $order->address->latitude,
+            $order->address->longitude,
+        );
 
         return "Buyurtma raqami № {$order->id}\n"
             . "Buyurtma vaqti: {$createdAt}\n"
@@ -68,6 +71,7 @@ class MakeTelegramOrderNotification
             . "Buyurtmachi telefon raqami: {$order->user->phone}\n"
             . "Buyurtma rasmiylashtirilgan ism: {$order->recipient_name}\n\n"
             . "Buyurtma manzili: {$order->address->formatted}\n"
+            . "Buyurtma manzili havolasi: {$addressLink}\n"
             . "{$flatInfoRow}\n"
             . "{$orderItemsText}\n\n"
             . "To'lov turi: {$order->payment->getLabel()}\n"
@@ -121,5 +125,14 @@ class MakeTelegramOrderNotification
     private function formatPrice(int $price): string
     {
         return Number::format($price) . " so'm";
+    }
+
+    private function makeLinkFromCoords(string $lat, string $long): string
+    {
+        return sprintf(
+            "https://yandex.uz/maps/?pt=%s,%s&z=17&l=map",
+            $long,
+            $lat
+        );
     }
 }

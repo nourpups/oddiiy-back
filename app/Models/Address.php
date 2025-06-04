@@ -28,6 +28,8 @@ class Address extends Model
         'apartment',
         'orientation',
         'postal',
+        'latitude',
+        'longitude',
     ];
 
     protected function casts(): array

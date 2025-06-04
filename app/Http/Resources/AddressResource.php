@@ -28,6 +28,8 @@ class AddressResource extends JsonResource
             'apartment' => $this->whenNotNull($this->apartment),
             'orientation' => $this->whenNotNull($this->orientation),
             'postal' => $this->whenNotNull($this->postal),
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
             'user' => new UserResource($this->whenLoaded('user')),
         ];
     }

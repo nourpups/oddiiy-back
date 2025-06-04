@@ -19,13 +19,17 @@ trait AddressValidationRules
             'region' => ['nullable', 'string'],
             'city'=> [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
             'district' => ['nullable', 'string'],
-            'street' => [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
-            'house' => [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
+//            'street' => [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
+//            'house' => [$rwak ? "required_with:$rwak" : 'nullable', 'string'],
+            'street' => ['nullable', 'string'],
+            'house' => ['nullable', 'string'],
             'entrance' => ['nullable', 'numeric'],
             'floor' => ['nullable', 'numeric'],
             'apartment' => ['nullable', 'string'],
             'orientation' => ['nullable', 'string'],
             'postal' => ['nullable', 'string'],
+            'latitude' => ['required', 'string'],
+            'longitude' => ['required', 'string'],
         ];
     }
 }

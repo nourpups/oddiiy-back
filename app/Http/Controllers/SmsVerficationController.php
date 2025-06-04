@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Action\SendOtpMessageAction;
-use App\Enum\EskizText;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Services\Eskiz;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
