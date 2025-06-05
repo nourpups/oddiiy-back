@@ -19,6 +19,7 @@ class CollectionController extends Controller
     {
         $collections = Collection::query()
             ->withCount('products')
+            ->orderBy('sort_order')
             ->get();
 
         return CollectionResource::collection($collections);

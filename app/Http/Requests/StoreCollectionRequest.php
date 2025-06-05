@@ -26,6 +26,7 @@ class StoreCollectionRequest extends FormRequest
             'title' => ['required', 'string'],
             'product_ids' => ['required', 'array'],
             'product_ids.*' => ['required', 'integer'],
+            'sort_order' => ['required', 'integer'],
         ];
     }
 }

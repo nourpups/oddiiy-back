@@ -19,6 +19,8 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'description' => $this->whenNotNull($this->description),
             'slug' => $this->slug,
+            'is_visible' => $this->is_visible,
+            'sort_order' => $this->sort_order,
             'skus' => SkuResource::collection(
                 $this->whenLoaded(
                     'skus',

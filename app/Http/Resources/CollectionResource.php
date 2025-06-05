@@ -22,6 +22,7 @@ class CollectionResource extends JsonResource
             'slug' => $this->slug,
             'products' => ProductResource::collection($this->whenLoaded('products')),
             'products_count' => $this->whenCounted('products'),
+            'sort_order' => $this->sort_order,
         ];
     }
 }

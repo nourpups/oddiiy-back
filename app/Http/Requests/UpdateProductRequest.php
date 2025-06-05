@@ -37,6 +37,8 @@ class UpdateProductRequest extends FormRequest
             ]),
             'tag_id' => ['sometimes', new RemovedOr('integer')],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'is_visible' => ['required', 'boolean'],
+            'sort_order' => ['required', 'integer'],
 
             'discount' => ['sometimes', new RemovedOr('array')],
             'discount.value' => ['present_if:discount,array', 'integer'],

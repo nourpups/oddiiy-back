@@ -22,8 +22,12 @@ class HomeController extends Controller
             }
         ])
             ->where('is_featured', true)
+            ->orderBy('sort_order')
             ->get();
-        $products = Product::all();
+        $products = Product::query()
+            ->where('is_visible', true)
+            ->orderBy('sort_order')
+            ->get();
 
         $productResourceCollection = ProductResource::collection($products);
 

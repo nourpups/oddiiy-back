@@ -11,7 +11,10 @@ class ProductController extends Controller
 {
     public function show(string $locale, Product $product): array
     {
-        $productIds = Product::query()->get()->pluck(['id'])->toArray();
+        $productIds = Product::query()
+            ->get()
+            ->pluck(['id'])
+            ->toArray();
 
         return [
           'product' => new ProductResource($product),
@@ -22,7 +25,9 @@ class ProductController extends Controller
     public function recommended(): AnonymousResourceCollection
     {
         $recommendedProducts = Cache::remember('recommended_products', 5 * 60, function () {
-            return Product::query()->get()->random(4);
+            return Product::query()
+                ->get()
+                ->random(4);
         });;
 
         return ProductResource::collection($recommendedProducts);

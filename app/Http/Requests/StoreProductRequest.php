@@ -32,6 +32,8 @@ class StoreProductRequest extends FormRequest
             ]),
             'tag_id' => ['sometimes', 'integer', 'exists:tags,id'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'is_visible' => ['required', 'boolean'],
+            'sort_order' => ['required', 'integer'],
 
             'discount' => ['sometimes', 'array:value,type,starts_at,expires_at'],
             'discount.value' => ['required_with:discount', 'integer'],

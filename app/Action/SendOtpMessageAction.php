@@ -17,9 +17,9 @@ class SendOtpMessageAction
         $otp = mt_rand(100000, 999999);
         $message = sprintf(EskizText::CONFIRM_ORDER->getText(), $otp);
 
-//        defer(fn () => $this->eskiz->sendSms($phone, $message));
+        defer(fn () => $this->eskiz->sendSms($phone, $message));
 
         Cache::forget("otp_$phone");
-        Cache::put("otp_$phone", 111111);
+        Cache::put("otp_$phone", $otp);
     }
 }

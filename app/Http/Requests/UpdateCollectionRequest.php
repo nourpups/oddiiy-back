@@ -27,6 +27,7 @@ class UpdateCollectionRequest extends FormRequest
             'is_featured' => ['sometimes', 'boolean'],
             'product_ids' => ['required', 'array'],
             'product_ids.*' => ['required', 'integer'],
+            'sort_order' => ['required', 'integer'],
         ];
     }
 }

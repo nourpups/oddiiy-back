@@ -54,6 +54,7 @@ Route::prefix('{locale}')->group(static function () {
     Route::prefix('/admin')->as('admin.')
         ->middleware(['auth:sanctum', IsAdmin::class])
         ->group(static function () {
+            Route::patch('/products/partial/{product:slug}', [Admin\ProductController::class, 'updateIsVisible']);
             Route::apiResource('products', Admin\ProductController::class)->scoped([
                 'product' => 'slug'
             ]);

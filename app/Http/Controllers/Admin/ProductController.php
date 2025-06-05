@@ -9,13 +9,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\Admin\ProductResource;
-use App\Models\Collection;
-use App\Models\Discount;
 use App\Models\Product;
-use App\Models\ProductTranslation;
 use App\Models\Sku;
-use App\Models\SkuVariant;
-use App\Models\Stock;
+use http\Env\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
@@ -32,6 +28,7 @@ class ProductController extends Controller
         $products = Product::query()
             ->with(['allImages'])
             ->latest()
+            ->orderBy('sort_order')
             ->get();
 
         return ProductResource::collection($products);
@@ -119,6 +116,8 @@ class ProductController extends Controller
                 ...$translations,
                 'category_id' => $validated['category_id'],
                 'tag_id' => $validated['tag_id'] !== RemoveKey::REMOVE->value ? $validated['tag_id'] : null,
+                'sort_order' => $validated['sort_order'],
+                'is_visible' => $validated['is_visible'],
             ]);
 
             // Discount
@@ -149,6 +148,17 @@ class ProductController extends Controller
         });
     }
 
+    public function updateIsVisible(\Illuminate\Http\Request $request, string $locale, Product $product): ProductResource
+    {
+        $validated = $request->validate([
+            'is_visible' => ['required', 'boolean']
+        ]);
+
+        $product->update($validated);
+        $product->refresh();
+
+        return new ProductResource($product);
+    }
     public function destroy(string $locale, Product $product): Response
     {
         $product->load('skus');

@@ -17,9 +17,15 @@ class CatalogController extends Controller
 {
     public function __invoke()
     {
-        $collections = Collection::query()->get();
+        $collections = Collection::query()
+            ->orderBy('sort_order')
+            ->get();
         $categories = Category::with('translations')->get();
-        $products = Product::query()->with(['tag', 'allImages'])->get();
+        $products = Product::query()
+            ->with(['tag', 'allImages'])
+            ->where('is_visible', true)
+            ->orderBy('sort_order')
+            ->get();
         $attributes = Attribute::with('options')->get();
 
         return [

@@ -17,6 +17,7 @@ class Collection extends Model
         'title',
         'slug',
         'is_featured',
+        'sort_order',
     ];
 
     protected $with = [

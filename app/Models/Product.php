@@ -28,6 +28,12 @@ class Product extends Model implements TranslatableContract
     protected $fillable = [
         'category_id',
         'tag_id',
+        'is_visible',
+        'sort_order',
+    ];
+
+    protected $casts = [
+        'is_visible' => 'boolean'
     ];
 
     protected $with = [
