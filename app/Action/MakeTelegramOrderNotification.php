@@ -74,7 +74,7 @@ class MakeTelegramOrderNotification
             . "Buyurtma manzili havolasi: {$addressLink}\n"
             . "{$flatInfoRow}\n"
             . "{$orderItemsText}\n\n"
-            . "To'lov turi: {$order->payment->getLabel()}\n"
+//            . "To'lov turi: {$order->payment->getLabel()}\n"
             . "Yetkazib berish turi: {$order->delivery->getLabel()}\n"
             . "Summa: {$this->formatPrice($subtotal)}\n"
             . "{$couponRow}\n"
