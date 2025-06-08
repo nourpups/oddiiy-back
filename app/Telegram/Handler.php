@@ -31,7 +31,7 @@ class Handler extends WebhookHandler
         ])->find($orderId);
 
         $statusLabel = OrderStatus::from($status)->getLabel();
-        $this->reply("Buyurtma statusi «{$statusLabel}»ga o'gartirildi ✅");
+        $this->reply("Buyurtma statusi «{$statusLabel}»ga o'gartirildi");
 
         $order->update(['status' => $status]);
     }

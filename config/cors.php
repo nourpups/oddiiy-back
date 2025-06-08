@@ -19,7 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://ooddiiy.uz', 'https://www.ooddiiy.uz', 'http://localhost:3000'],
+    'allowed_origins' => [
+        'https://ooddiiy.uz',
+        'https://www.ooddiiy.uz',
+        'http://localhost:3000',
+        'https://ghoul-crack-thoroughly.ngrok-free.app'
+    ],
 
     'allowed_origins_patterns' => [],
 

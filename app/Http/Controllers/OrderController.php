@@ -51,6 +51,9 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
+            $comment = $validated['telegram_contact'] . (!empty($validated['comment'])
+                ? ' | ' . $validated['comment']
+                : '');
             $order = Order::query()->create([
                 'user_id' => $validated['user_id'],
                 'coupon_id' => $validated['coupon_id'] ?? null,
@@ -59,7 +62,7 @@ class OrderController extends Controller
                 'delivery' => $validated['delivery'],
                 'payment' => $validated['payment'],
                 'sum' => $validated['sum'],
-                'comment' => $validated['comment'] ?? null,
+                'comment' => $comment,
                 'status' => OrderStatus::PENDING,
             ]);
 
@@ -81,10 +84,13 @@ class OrderController extends Controller
 
             // @todo сделать норм логику отправления адреса во фронте
             $order->address()->create([
-                ...$validated['address'],
-                "house" => !empty($validated['address']['house'])
-                    ? $validated['address']['house']
-                    : "pusto"
+//                ...$validated['address'],
+//                "house" => !empty($validated['address']['house'])
+//                    ? $validated['address']['house']
+//                    : "pusto"
+                "formatted" => "zaglushka",
+                "city" => "zaglushka",
+                "house" => "pusto",
             ]);
 
             // добавление элементов заказа в сам заказ

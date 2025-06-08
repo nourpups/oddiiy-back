@@ -5,6 +5,7 @@ namespace App\Action;
 use App\Enum\OrderStatus;
 use App\Models\Order;
 use DefStudio\Telegraph\Facades\Telegraph;
+use DefStudio\Telegraph\Keyboard\Button;
 use DefStudio\Telegraph\Keyboard\Keyboard;
 
 class SendOrderNotificationToTelegramAction
@@ -39,11 +40,34 @@ class SendOrderNotificationToTelegramAction
     {
         $keyboard = Keyboard::make();
 
+        if ($status === OrderStatus::PENDING || $status === OrderStatus::ACCEPTED) {
+            $keyboard->buttons([
+                Button::make('Bekor qilish ❌')
+                    ->width(.5)
+                    ->action('changeStatus')
+                    ->param('order_id', $orderId)
+                    ->param('status', OrderStatus::CANCELLED->value),
+            ]);
+        }
+
+        if ($status === OrderStatus::PENDING) {
+            $keyboard->buttons([
+                Button::make('Rasmiylashtirish ✅')
+                    ->width(.5)
+                    ->action('changeStatus')
+                    ->param('order_id', $orderId)
+                    ->param('status', OrderStatus::ACCEPTED->value),
+            ]);
+        }
+
         if ($status === OrderStatus::ACCEPTED) {
-            $keyboard->button('Yakunlash')
-                ->action('changeStatus')
-                ->param('order_id', $orderId)
-                ->param('status', OrderStatus::COMPLETED->value);
+            $keyboard->buttons([
+                Button::make('Yakunlash 🎉')
+                    ->width(.5)
+                    ->action('changeStatus')
+                    ->param('order_id', $orderId)
+                    ->param('status', OrderStatus::COMPLETED->value),
+            ]);
         }
 
         return $keyboard;

@@ -17,7 +17,7 @@ class MakeTelegramOrderNotification
             ->setTimezone('Asia/Tashkent')
             ->format('Y-m-d H:i');
 
-        $commentRow = $order->comment ? "Izoh: $order->comment\n" : '';
+        $commentRow = $order->comment ? "Izoh: $order->comment" : '';
         $orderCoupon = $order->coupon_id ? $order->coupon : null;
         $orderCashbackOption = $order->cashback_wallet_option_id ? $order->cashbackWalletOption : null;
 
@@ -41,28 +41,29 @@ class MakeTelegramOrderNotification
             : "";
 
         $orderItemsText = $this->getOrderItemsText($order->items);
-        $flatInfoRow = "";
-        if ($order->address?->entrance) {
-            $flatInfoRow .= "Podyezd: {$order->address->entrance} ";
-        }
-
-        if ($order->address?->floor) {
-            $flatInfoRow .= "Qavat: {$order->address->floor} ";
-        }
-
-        if ($order->address?->apartment) {
-            $flatInfoRow .= "Xonadon: {$order->address->apartment} ";
-        }
-
-        if ($order->address?->orientation) {
-            $flatInfoRow .= "Mo'ljal: {$order->address->orientation} ";
-        }
+//        $flatInfoRow = "";
+//        if ($order->address?->entrance) {
+//            $flatInfoRow .= "Podyezd: {$order->address->entrance} ";
+//        }
+//
+//        if ($order->address?->floor) {
+//            $flatInfoRow .= "Qavat: {$order->address->floor} ";
+//        }
+//
+//        if ($order->address?->apartment) {
+//            $flatInfoRow .= "Xonadon: {$order->address->apartment} ";
+//        }
+//
+//        if ($order->address?->orientation) {
+//            $flatInfoRow .= "Mo'ljal: {$order->address->orientation} ";
+//        }
+//
+//        $addressLink = $this->makeLinkFromCoords(
+//            $order->address->latitude,
+//            $order->address->longitude,
+//        );
 
         $status = $order->status->getLabel();
-        $addressLink = $this->makeLinkFromCoords(
-            $order->address->latitude,
-            $order->address->longitude,
-        );
 
         return "Buyurtma raqami № {$order->id}\n"
             . "Buyurtma vaqti: {$createdAt}\n"
@@ -70,9 +71,9 @@ class MakeTelegramOrderNotification
             . "Buyurtmachi ismi: {$order->user->name}\n"
             . "Buyurtmachi telefon raqami: {$order->user->phone}\n"
             . "Buyurtma rasmiylashtirilgan ism: {$order->recipient_name}\n\n"
-            . "Buyurtma manzili: {$order->address->formatted}\n"
-            . "Buyurtma manzili havolasi: {$addressLink}\n"
-            . "{$flatInfoRow}\n"
+//            . "Buyurtma manzili: {$order->address->formatted}\n"
+//            . "Buyurtma manzili havolasi: {$addressLink}\n"
+//            . "{$flatInfoRow}\n"
             . "{$orderItemsText}\n\n"
 //            . "To'lov turi: {$order->payment->getLabel()}\n"
             . "Yetkazib berish turi: {$order->delivery->getLabel()}\n"
