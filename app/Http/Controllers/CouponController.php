@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enum\FirstOrderCoupon;
 use App\Http\Resources\CouponResource;
 use App\Models\Coupon;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -48,6 +49,20 @@ class CouponController extends Controller
                 'message' => __('messages.coupon.invalid')
             ], 400);
         }
+
+        /** @var User $user */
+        $user = auth()->user();
+        $hasEverUsedCoupon = $user->orders()
+            ->where('coupon_id', $coupon->id)
+            ->exists();
+
+        if ($hasEverUsedCoupon) {
+            return response()->json([
+                'message' => __('messages.coupon.used')
+            ], 400);
+        }
+
+        $coupon->decrement('max_uses');
 
         return new CouponResource($coupon);
     }

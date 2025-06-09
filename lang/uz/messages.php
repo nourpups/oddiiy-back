@@ -10,6 +10,7 @@ return [
         'code' => "Ko'rinmas siyohli promo-kodni 1-marta ko'rishim)",
         'notFound' => "Promo-kod mavjud emas",
         'invalid' => "Promo-kod endi yaroqsiz",
+        'used' => "Promo-koddan allaqachon foydalanilgan",
     ],
     'order' => [
         'unavailableItems' => "Tanlash imkoni bo'lmagan , quyidagi, mahsulot variantlari (joriy zaxiradan ortiq miqdor) tanlandi: :products",

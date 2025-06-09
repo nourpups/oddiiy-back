@@ -16,6 +16,7 @@ Route::prefix('{locale}')->group(static function () {
             return new UserResource($request->user());
         });
         Route::resource('/orders', Controllers\OrderController::class)->only(['index', 'store']);
+        Route::post('/coupons/apply', [Controllers\CouponController::class, 'apply']);
     });
 
     Route::prefix('/auth')->group(static function () {
@@ -47,9 +48,9 @@ Route::prefix('{locale}')->group(static function () {
         ->controller(Controllers\CouponController::class)
         ->group(static function () {
             Route::get('/first-order', 'firstOrder');
-            Route::post('/apply', 'apply');
         });
     Route::apiResource('/admin/fonts', Admin\FontController::class)->only(['index', 'update']);
+    Route::get('/testimonials', Controllers\TestimonialController::class);
 
     Route::prefix('/admin')->as('admin.')
         ->middleware(['auth:sanctum', IsAdmin::class])
@@ -71,6 +72,7 @@ Route::prefix('{locale}')->group(static function () {
             Route::apiResource('cashback-options', Admin\CashbackWalletOptionsController::class)
                 ->only(['index'])
                 ->withoutMiddleware(IsAdmin::class);
+            Route::apiResource('/testimonials', Admin\TestimonialController::class);
         });
 })->whereIn('locale', Locale::cases());
 
