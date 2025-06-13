@@ -4,21 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
     public function show(string $locale, Product $product): array
     {
-        $productIds = Product::query()
-            ->get()
-            ->pluck(['id'])
-            ->toArray();
+        $neighbors = [
+            'prev' => Product::query()->where('id', '<', $product->id)->latest()->first()?->slug,
+            'next' => Product::query()->where('id', '>', $product->id)->oldest()->first()?->slug,
+        ];
 
         return [
-          'product' => new ProductResource($product),
-          'productIds' => $productIds,
+            'neighbors' => $neighbors,
+            'product' => new ProductResource($product),
         ];
     }
 
