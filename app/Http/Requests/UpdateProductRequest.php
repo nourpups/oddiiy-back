@@ -67,4 +67,11 @@ class UpdateProductRequest extends FormRequest
             'skus.*.images' => __('messages.images'),
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_visible' => filter_var($this->is_visible, FILTER_VALIDATE_BOOLEAN),
+        ]);
+    }
 }

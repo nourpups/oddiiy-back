@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enum\SaleType;
 use Astrotomic\Translatable\Validation\RuleFactory;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 
@@ -25,6 +26,7 @@ class StoreProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        Log::warning('422 check is_visible', $this->all());
         return [
             ...RuleFactory::make([
                 'translations.%name%' => ['required', 'string'],
@@ -59,5 +61,12 @@ class StoreProductRequest extends FormRequest
             'skus.*.price' => __('messages.min.price'),
             'skus.*.combinations.*.stock' => __('messages.min.price')
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_visible' => filter_var($this->is_visible, FILTER_VALIDATE_BOOLEAN),
+        ]);
     }
 }
