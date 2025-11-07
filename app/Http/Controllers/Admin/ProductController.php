@@ -27,8 +27,8 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->with(['allImages'])
-            ->latest()
             ->orderBy('sort_order')
+            ->latest()
             ->get();
 
         return ProductResource::collection($products);
